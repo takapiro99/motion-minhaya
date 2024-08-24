@@ -1,5 +1,6 @@
 import { env } from "@/common/utils/envConfig";
 import { app, logger } from "@/server";
+import cors from "cors";
 import { Server } from "socket.io";
 import { wsRoutes } from "./wsServer";
 
@@ -8,7 +9,14 @@ const server = app.listen(env.PORT, () => {
   logger.info(`Server (${NODE_ENV}) running on port ${PORT}`);
 });
 
-export const io = new Server(server);
+export const io = new Server(server, {
+  cors: {
+    origin: ["http://localhost:5173", "https://motion-minhaya-sxmhgfgw6q-an.a.run.app"],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
 wsRoutes(io);
 
 const onCloseSignal = () => {
