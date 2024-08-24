@@ -7,7 +7,7 @@ export type UseGame = {
 }
 
 export const useGame = (): UseGame => {
-  const [gameStatus, setGameStatus] = useState<GameStatus>("NONE")
+  const [gameStatus, setGameStatus] = useState<GameStatus>("NAME_INPUTING")
   return {
     gameStatus: gameStatus,
     updateGameStatus: setGameStatus,
