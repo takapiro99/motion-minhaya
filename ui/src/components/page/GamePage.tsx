@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useGame } from "../../hooks/useGame"
 import { Button } from "semantic-ui-react"
 import { GameStatus } from "../../domain/type"
+import { NameInputing } from "../game/NameInputing"
 
 export const GamePage: FC = () => {
   const {gameStatus, updateGameStatus} = useGame()
@@ -15,14 +16,7 @@ export const GamePage: FC = () => {
     <div>
       <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
       <div>This is a game page.</div>
-      {gameStatus === "NAME_INPUTING" &&
-        <>
-          <div>gameStatus is NAME_INPUTING</div>
-          <Button onClick={() => handleOnClickButton("CONFIRMING_WAITING_ROOM_JOINABLE")}>
-            to CONFIRMING_WAITING_ROOM_JOINABLE
-          </Button>
-        </>
-      }
+      {gameStatus === "NAME_INPUTING" && <NameInputing updateGameStatus={updateGameStatus}/>}
       {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" &&
         <>
           <div>gameStatus is CONFIRMING_WAITING_ROOM_JOINABLE</div>
