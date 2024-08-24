@@ -12,6 +12,7 @@ export type MotionMinhayaWSClientMessage = MotionMinhayaWSClientMessageBase & {
   message: string
 } | {
   action: "ENTER_WAITING_ROOM"
+  name: string
 } | {
   action: "BUTTON_PRESSED"
 } | {

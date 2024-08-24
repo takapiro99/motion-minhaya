@@ -27,3 +27,29 @@ export type WaitingGame = {
     name: string
   }[]
 }
+
+export type OnGoingGame = {
+  gameId: string
+  participants: {
+    connectionId: string | null
+    clientId: string
+    name: string
+  }[]
+  currentQuizNumberOneIndexed: number
+  quizzes: {
+    quizNumber: number,
+    motionId: string,
+    motionStartTimestamp: number // unix timestamp
+    answerFinishTimestamp: number // unix timestamp
+    guesses: {
+      clientId: string
+      buttonPressedTimeMs: number
+      similarityPoint: number, // 類似度点数
+      quizPoint: number // この問題で得た点数
+    }[]
+    gameResult: {
+      clientId: string
+      gamePoint: number
+    }[] | null
+  }[]
+}

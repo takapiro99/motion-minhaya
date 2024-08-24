@@ -6,7 +6,7 @@ import { emitter } from "@/common/utils/emitter";
 import { Socket } from "socket.io";
 import { v4 } from "uuid";
 
-const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
+export const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) => {
   switch (body.action) {
@@ -28,7 +28,6 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) 
 const handlePing = (socket: Socket) => emitter.emitPong(socket);
 
 const handlePingWithAck = (socket: Socket, message: string) => emitter.emitPongWithAck(socket, message);
-
 
 const handleEnterWaitingRoom = (socket: Socket, name: string) => {
   // 空きがあればいれて、保存する

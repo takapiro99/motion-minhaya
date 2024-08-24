@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { WaitingGame } from "../models/game";
+import { OnGoingGame, WaitingGame } from "../models/game";
 import { MotionMinhayaWSServerMessage } from "../models/messages";
 
 const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
@@ -21,5 +21,8 @@ export const emitter = {
   },
   emitWaitingRoomUnjoinable: (socket: Socket) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_UNJOINABLE" });
+  },
+  emitGameStarted: (socket: Socket, onGoingGame: OnGoingGame) => {
+    emitToSocketAck(socket, { event: "GAME_STARTED", ...onGoingGame });
   },
 }
