@@ -1,0 +1,1 @@
+export type GameStatus = "NONE" | "PARTICIPANTS_WAITING" | "GAME_ONGOING"
