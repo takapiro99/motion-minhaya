@@ -1,7 +1,7 @@
 import { FC, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "semantic-ui-react";
-import { SocketContext } from "../SocketContext";
+import { SocketContext } from "../../SocketContext";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();

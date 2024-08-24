@@ -1,8 +1,8 @@
 import { FC } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { useGame } from "../hooks/useGame"
+import { useGame } from "../../hooks/useGame"
 import { Button } from "semantic-ui-react"
-import { GameStatus } from "../domain/type"
+import { GameStatus } from "../../domain/type"
 
 export const GamePage: FC = () => {
   const {gameStatus, updateGameStatus} = useGame()
