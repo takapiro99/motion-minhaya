@@ -7,6 +7,7 @@ import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
 import { ParticipantsMatched } from "../game/ParticipantsMatched"
+import { GameStarted } from "../game/GameStarted"
 
 export const GamePage: FC = () => {
   const {gameStatus, updateGameStatus} = useGame()
@@ -23,14 +24,7 @@ export const GamePage: FC = () => {
       {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable updateGameStatus={updateGameStatus}/>}
       {gameStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting updateGameStatus={updateGameStatus}/>}
       {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "GAME_STARTED" &&
-        <>
-          <div>gameStatus is GAME_STARTED</div>
-          <Button onClick={() => handleOnClickButton("GAME_ONGOING")}>
-            to GAME_ONGOING
-          </Button>
-        </>
-      }
+      {gameStatus === "GAME_STARTED" && <GameStarted updateGameStatus={updateGameStatus}/>}
       {gameStatus === "GAME_ONGOING" &&
         <>
           <div>gameStatus is GAME_ONGOING</div>
