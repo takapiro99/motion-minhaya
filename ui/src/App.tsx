@@ -1,10 +1,11 @@
 import { AppRoutes } from './AppRoutes'
+import { SocketContextProvider } from './SocketContext'
 
 function App() {
   return (
-    <div className="App">
+    <SocketContextProvider>
       <AppRoutes />
-    </div>
+    </SocketContextProvider>
   )
 }
 
