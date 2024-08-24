@@ -1,13 +1,13 @@
-import { Socket } from "socket.io";
-import { OnGoingGame, WaitingGame } from "../models/game";
-import { MotionMinhayaWSServerMessage } from "../models/messages";
+import type { Socket } from "socket.io";
+import type { OnGoingGame, WaitingGame } from "../models/game";
+import type { MotionMinhayaWSServerMessage } from "../models/messages";
 
 const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
   socket.emit("game", body);
-}
+};
 const emitToSocketAck = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
   socket.emitWithAck("game", body);
-}
+};
 
 export const emitter = {
   emitPong: (socket: Socket) => {
@@ -25,4 +25,4 @@ export const emitter = {
   emitGameStarted: (socket: Socket, onGoingGame: OnGoingGame) => {
     emitToSocketAck(socket, { event: "GAME_STARTED", ...onGoingGame });
   },
-}
+};

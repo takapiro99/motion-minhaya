@@ -3,14 +3,13 @@ import { app, logger } from "@/server";
 import { Server } from "socket.io";
 import { wsRoutes } from "./wsServer";
 
-
 const server = app.listen(env.PORT, () => {
   const { NODE_ENV, PORT } = env;
   logger.info(`Server (${NODE_ENV}) running on port ${PORT}`);
 });
 
 export const io = new Server(server);
-wsRoutes(io)
+wsRoutes(io);
 
 const onCloseSignal = () => {
   logger.info("sigint received, shutting down");

@@ -1,9 +1,9 @@
 import { constants } from "@/common/constants";
-import { WaitingGame } from "@/common/models/game";
-import { MotionMinhayaWSClientMessage, MotionMinhayaWSServerMessage } from "@/common/models/messages";
+import type { WaitingGame } from "@/common/models/game";
+import { type MotionMinhayaWSClientMessage, MotionMinhayaWSServerMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
-import { Socket } from "socket.io";
+import type { Socket } from "socket.io";
 import { v4 } from "uuid";
 
 export const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
@@ -23,7 +23,7 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) 
     default:
       return body satisfies never;
   }
-}
+};
 
 const handlePing = (socket: Socket) => emitter.emitPong(socket);
 
@@ -44,10 +44,10 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
         {
           connectionId: socket.id,
           clientId: clientId,
-          name: name
-        }
-      ]
-    }
+          name: name,
+        },
+      ],
+    };
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
   } else if (waitingRooms.length === 1) {
@@ -57,7 +57,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
     newWaitingGame.participants.push({
       connectionId: socket.id,
       clientId: clientId,
-      name: name
+      name: name,
     });
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
@@ -67,14 +67,12 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
   }
-
-}
+};
 
 const handleButtonPressed = (socket: Socket) => {
   // TODO
-}
+};
 
 const handleGuessAnswer = (socket: Socket, answer: string) => {
   // TODO
-}
-
+};
