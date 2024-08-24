@@ -1,7 +1,5 @@
-import { copy } from "@/api/ws/game";
-import { LowSync, MemorySync } from "lowdb";
-import { v4 as uuidv4 } from "uuid";
 import type { WaitingGame } from "../models/game";
+import { LowSync, MemorySync } from "./lowdb";
 
 // With this adapter, calling `db.write()` will do nothing.
 // One use case for this adapter can be for tests.
@@ -28,11 +26,11 @@ type DataBase = {
       }[];
     } | null;
     gameResult:
-      | {
-          clientId: string;
-          gamePoint: number;
-        }[]
-      | null;
+    | {
+      clientId: string;
+      gamePoint: number;
+    }[]
+    | null;
   }[];
 };
 
@@ -40,6 +38,7 @@ const defaultData: DataBase = {
   games: [],
 };
 
+// @ts-ignore
 const conn = new LowSync<DataBase>(new MemorySync<DataBase>(), defaultData);
 conn.read();
 
@@ -47,10 +46,14 @@ export const db = {
   game: {
     getWaitingRooms: (): WaitingGame[] => {
       conn.read();
+      if (!conn.data) return [];
+
       return conn.data.games.filter((room) => room.status === "WAITING_PARTICIPANTS");
     },
     upsertWaitingGame: (waitingGame: WaitingGame) => {
       conn.read();
+      if (!conn.data) return [];
+
       const existingGame = conn.data.games.find((game) => game.gameId === waitingGame.gameId);
       if (existingGame) {
         conn.update((data) => {
