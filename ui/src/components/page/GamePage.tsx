@@ -1,21 +1,16 @@
 import { FC } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useGame } from "../../hooks/useGame"
-import { Button } from "semantic-ui-react"
-import { GameStatus } from "../../domain/type"
 import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
 import { ParticipantsMatched } from "../game/ParticipantsMatched"
 import { GameStarted } from "../game/GameStarted"
 import { GameOngoing } from "../game/GameOngoing"
+import { GameFinished } from "../game/GameFinished"
 
 export const GamePage: FC = () => {
   const {gameStatus, updateGameStatus} = useGame()
-  const handleOnClickButton = (newGameStatus: GameStatus) => {
-    updateGameStatus(newGameStatus)
-  }
-  const navigate = useNavigate()
 
   return (
     <div>
@@ -27,19 +22,7 @@ export const GamePage: FC = () => {
       {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched updateGameStatus={updateGameStatus}/>}
       {gameStatus === "GAME_STARTED" && <GameStarted updateGameStatus={updateGameStatus}/>}
       {gameStatus === "GAME_ONGOING" && <GameOngoing updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "GAME_FINISIED" &&
-        <>
-          <div>gameStatus is GAME_FINISIED</div>
-          <Button 
-            onClick={() => {
-              handleOnClickButton("NAME_INPUTING")
-              navigate("/")
-            }}
-          >
-            to TopPage
-          </Button>
-        </>
-      }
+      {gameStatus === "GAME_FINISIED" && <GameFinished updateGameStatus={updateGameStatus}/>}
     </div>
   )
 }
