@@ -4,6 +4,7 @@ import { useGame } from "../../hooks/useGame"
 import { Button } from "semantic-ui-react"
 import { GameStatus } from "../../domain/type"
 import { NameInputing } from "../game/NameInputing"
+import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 
 export const GamePage: FC = () => {
   const {gameStatus, updateGameStatus} = useGame()
@@ -17,14 +18,7 @@ export const GamePage: FC = () => {
       <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
       <div>This is a game page.</div>
       {gameStatus === "NAME_INPUTING" && <NameInputing updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" &&
-        <>
-          <div>gameStatus is CONFIRMING_WAITING_ROOM_JOINABLE</div>
-          <Button onClick={() => handleOnClickButton("PARTICIPANTS_WAITING")}>
-            to PARTICIPANTS_WAITING
-          </Button>
-        </>
-      }
+      {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable updateGameStatus={updateGameStatus}/>}
       {gameStatus === "PARTICIPANTS_WAITING" &&
         <>
           <div>gameStatus is PARTICIPANTS_WAITING</div>
