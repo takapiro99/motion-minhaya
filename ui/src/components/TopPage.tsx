@@ -1,11 +1,16 @@
 import { FC } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { Button } from "semantic-ui-react"
 
-export const TopPage: FC = () => {  
+export const TopPage: FC = () => {
+  const navigate = useNavigate()
+
   return (
     <div>
-      <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateGame</Link>
+      <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
       <div>This is a top page.</div>
+      <Button onClick={() => navigate('/game')}>問題を解く</Button>
+      <Button onClick={() => navigate('/create-quiz')}>問題を作る</Button>
     </div>
   )
 }
