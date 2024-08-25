@@ -1,4 +1,4 @@
-import type { Socket } from "socket.io";
+import type { Server, Socket } from "socket.io";
 import type { Quiz, WaitingGame } from "../models/game";
 import type { MotionMinhayaWSServerMessage } from "../models/messages";
 
@@ -21,8 +21,13 @@ export const emitter = {
   emitWaitingRoomJoined: (socket: Socket, waitingGame: WaitingGame, clientId: string) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_JOINED", ...waitingGame, clientId });
   },
-  emitWaitingRoomUpdated: (socket: Socket, waitingGame: WaitingGame) => {
-    emitToSocketAck(socket, { event: "WAITING_ROOM_UPDATED", ...waitingGame });
+  emitWaitingRoomUpdated: (socketIDs: string[], waitingGame: WaitingGame, io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, { event: "WAITING_ROOM_UPDATED", ...waitingGame });
+      }
+    })
   },
   emitWaitingRoomUnjoinable: (socket: Socket) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_UNJOINABLE" });

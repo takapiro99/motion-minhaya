@@ -7,45 +7,45 @@ import { LowSync, MemorySync } from "./lowdb";
 type DataBase = {
   games: (
     | {
-        status: "WAITING_PARTICIPANTS";
-        gameId: string;
-        participants: {
-          connectionId: string | null;
-          clientId: string;
-          name: string;
-        }[];
-        currentQuizNumberOneIndexed: 1;
-        quizzes: null;
-        gameResult: null;
-      }
+      status: "WAITING_PARTICIPANTS";
+      gameId: string;
+      participants: {
+        connectionId: string | null;
+        clientId: string;
+        name: string;
+      }[];
+      currentQuizNumberOneIndexed: 1;
+      quizzes: null;
+      gameResult: null;
+    }
     | {
-        status: "ONGOING";
-        gameId: string;
-        participants: {
-          connectionId: string | null;
+      status: "ONGOING";
+      gameId: string;
+      participants: {
+        connectionId: string | null;
+        clientId: string;
+        name: string;
+      }[];
+      currentQuizNumberOneIndexed: number;
+      quizzes: {
+        quizNumber: number;
+        motionId: string;
+        motionStartTimestamp: number; // unix timestamp
+        answerFinishTimestamp: number; // unix timestamp
+        guesses: {
           clientId: string;
-          name: string;
+          buttonPressedTimeMs: number;
+          similarityPoint: number; // 類似度点数
+          quizPoint: number; // この問題で得た点数
         }[];
-        currentQuizNumberOneIndexed: number;
-        quizzes: {
-          quizNumber: number;
-          motionId: string;
-          motionStartTimestamp: number; // unix timestamp
-          answerFinishTimestamp: number; // unix timestamp
-          guesses: {
-            clientId: string;
-            buttonPressedTimeMs: number;
-            similarityPoint: number; // 類似度点数
-            quizPoint: number; // この問題で得た点数
-          }[];
-        }[];
-        gameResult:
-          | {
-              clientId: string;
-              gamePoint: number;
-            }[]
-          | null;
-      }
+      }[];
+      gameResult:
+      | {
+        clientId: string;
+        gamePoint: number;
+      }[]
+      | null;
+    }
   )[];
 };
 
