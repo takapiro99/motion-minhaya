@@ -4,13 +4,21 @@ import { io, Socket } from "socket.io-client";
 type SocketContextType = {
   socket: Socket;
   ping: () => void;
+  enterWaitingRoom: (name: string) => void;
 };
 
 const socket = io(import.meta.env.SERVER_ORIGIN ?? "localhost:8080");
 
 const ping = () => socket.emit("game", { action: "PING" });
 
-export const SocketContext = createContext<SocketContextType>({ socket, ping });
+const enterWaitingRoom = (name: string) => {
+  socket.emit("game", {
+    "action": "ENTER_WAITING_ROOM", 
+    "name": name,
+  })
+}
+
+export const SocketContext = createContext<SocketContextType>({ socket, ping, enterWaitingRoom });
 
 export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   children,
@@ -29,7 +37,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, ping }}>
+    <SocketContext.Provider value={{ socket, ping, enterWaitingRoom }}>
       {children}
     </SocketContext.Provider>
   );
