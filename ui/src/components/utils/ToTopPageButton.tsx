@@ -5,12 +5,20 @@ import { Button } from "semantic-ui-react";
 
 export const ToTopPageButton: FC = () => {
   const navigate = useNavigate();
-  const { updateGameStatus } = useContext(SocketContext);
+  const { updateGameStatus, updateGame } = useContext(SocketContext);
 
   return (
     <Button
       onClick={() => {
         updateGameStatus("OUT_OF_GAME")
+        updateGame({
+          status: "NONE",
+          gameId: null,
+          participants: null,
+          currentQuizNumberOneIndexed: null,
+          quizzes: null,
+          gameResult: null,
+        })
         navigate("/")
       }}
     >
