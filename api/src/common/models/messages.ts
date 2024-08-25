@@ -1,4 +1,4 @@
-import type { GameClientAction, GameServerEvent } from "./game";
+import type { GameClientAction, GameServerEvent, Participant } from "./game";
 
 type MotionMinhayaWSClientMessageBase = {
   action: GameClientAction;
@@ -43,23 +43,28 @@ export type MotionMinhayaWSServerMessage =
       event: "WAITING_ROOM_JOINED";
       gameId: string;
       clientId: string;
-      participants: {
-        connectionId: string | null;
-        clientId: string;
-        name: string;
-      }[];
+      participants: Participant[];
     }
   | {
       event: "WAITING_ROOM_UPDATED";
+      gameId: string;
+      participants: Participant[];
     }
   | {
       event: "WAITING_ROOM_UNJOINABLE";
     }
   | {
       event: "GAME_STARTED";
+      gameId: string;
+      participants: Participant[];
     }
   | {
       event: "QUIZ_STARTED";
+      gameId: string;
+      quizNumber: number;
+      motionId: string;
+      motionStartTimestamp: string;
+      answerFinishTimestamp: string;
     }
   | {
       event: "PARTICIPANTS_ANSWER_STATUS_UPDATED";

@@ -13,38 +13,51 @@ export type GameServerEvent =
   | "QUIZ_RESULT";
 
 export type WaitingGame = {
+  status: "WAITING_PARTICIPANTS";
   gameId: string;
-  participants: {
-    connectionId: string | null;
-    clientId: string;
-    name: string;
-  }[];
+  participants: Participant[];
 };
 
 export type OnGoingGame = {
+  status: "ONGOING";
   gameId: string;
-  participants: {
-    connectionId: string | null;
-    clientId: string;
-    name: string;
-  }[];
+  participants: Participant[];
   currentQuizNumberOneIndexed: number;
-  quizzes: {
-    quizNumber: number;
-    motionId: string;
-    motionStartTimestamp: number; // unix timestamp
-    answerFinishTimestamp: number; // unix timestamp
-    guesses: {
-      clientId: string;
-      buttonPressedTimeMs: number;
-      similarityPoint: number; // 類似度点数
-      quizPoint: number; // この問題で得た点数
-    }[];
-    gameResult:
-      | {
-          clientId: string;
-          gamePoint: number;
-        }[]
-      | null;
+  quizzes: Quiz[];
+  gameResult:
+    | {
+        clientId: string;
+        gamePoint: number;
+      }[]
+    | null;
+};
+
+export const createOngoingGame = (waitingGame: WaitingGame): OnGoingGame => {
+  return {
+    status: "ONGOING",
+    gameId: waitingGame.gameId,
+    participants: waitingGame.participants,
+    currentQuizNumberOneIndexed: 1,
+    quizzes: [],
+    gameResult: null,
+  };
+};
+
+export type Quiz = {
+  quizNumber: number;
+  motionId: string;
+  motionStartTimestamp: number; // unix timestamp
+  answerFinishTimestamp: number; // unix timestamp
+  guesses: {
+    clientId: string;
+    buttonPressedTimeMs: number;
+    similarityPoint: number; // 類似度点数
+    quizPoint: number; // この問題で得た点数
   }[];
+};
+
+export type Participant = {
+  connectionId: string | null;
+  clientId: string;
+  name: string;
 };

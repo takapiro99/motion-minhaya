@@ -1,10 +1,10 @@
+import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
+import errorHandler from "@/common/middleware/errorHandler";
+import requestLogger from "@/common/middleware/requestLogger";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
-import { healthCheckRouter } from "@/api/healthCheck/healthCheckRouter";
-import errorHandler from "@/common/middleware/errorHandler";
-import requestLogger from "@/common/middleware/requestLogger";
 
 const logger = pino({ name: "server start" });
 const app: Express = express();

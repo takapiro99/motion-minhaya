@@ -13,8 +13,8 @@ export const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173", "https://motion-minhaya-sxmhgfgw6q-an.a.run.app"],
     methods: ["GET", "POST"],
-    credentials: true
-  }
+    credentials: true,
+  },
 });
 
 wsRoutes(io);
