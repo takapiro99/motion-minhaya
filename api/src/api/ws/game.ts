@@ -71,6 +71,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
     console.log(
       `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`,
     );
+    emitter.emitWaitingRoomUpdated(getSocketIDsFromParticipants(newWaitingGame.participants), newWaitingGame, io);
     if (newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME) {
       // start game
       console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
