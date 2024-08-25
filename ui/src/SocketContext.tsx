@@ -64,8 +64,31 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         console.log("PONG received!");
         // update state なりなんなり
       }
+      if (message.event === "WAITING_ROOM_JOINED") {
+        console.log("WAITING_ROOM_JOINED recieved!")
+        setGame(message)
+        setGameStatus("PARTICIPANTS_WAITING")
+      }
+      if (message.event === "WAITING_ROOM_UPDATED") {
+        console.log("WAITING_ROOM_UPDATED recieved!")
+        setGame(message)
+      }
+      if (message.event === "WAITING_ROOM_UNJOINABLE") {
+        console.log("WAITING_ROOM_UNJOINABLE recieved!")
+        setGameStatus("WAITING_ROOM_UNJOINABLE")
+      }
     });
   }, []);
+
+  // gameStatus の状態確認用
+  useEffect(() => {
+    console.log("gameStatus:", gameStatus)
+  }, [gameStatus])
+
+  // game の状態確認用
+  useEffect(() => {
+    console.log("game:", game)
+  }, [game])
 
   return (
     <SocketContext.Provider
