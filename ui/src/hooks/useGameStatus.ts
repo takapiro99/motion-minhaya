@@ -6,6 +6,7 @@ export type UseGameStatus = {
   updateGameStatus: (gameStatus: GameStatus) => void,
 }
 
+// SocketContext に移植したので消すかも
 export const useGameStatus = (): UseGameStatus => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NAME_INPUTING")
   return {
