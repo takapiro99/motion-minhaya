@@ -3,7 +3,7 @@ import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
 import { ParticipantsMatched } from "../game/ParticipantsMatched"
-import { GameStarted } from "../game/GameStarted"
+// import { GameStarted } from "../game/GameStarted"
 import { GameOngoing } from "../game/GameOngoing"
 import { GameFinished } from "../game/GameFinished"
 import { SocketContext } from "../../SocketContext"
@@ -23,7 +23,7 @@ export const GamePage: FC = () => {
       {gameStatus === "WAITING_ROOM_UNJOINABLE" && <WaitingRoomUnjoinable />}
       {gameStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
       {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />}
-      {gameStatus === "GAME_STARTED" && <GameStarted />}
+      {/* {gameStatus === "GAME_STARTED" && <GameStarted />} */}
       {gameStatus === "GAME_ONGOING" && <GameOngoing />}
       {gameStatus === "GAME_FINISIED" && <GameFinished />}
     </div>

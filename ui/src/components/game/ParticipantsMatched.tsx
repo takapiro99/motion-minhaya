@@ -16,7 +16,7 @@ export const ParticipantsMatched: FC = () => {
         <li>さぶろう</li>
         <li>しろう</li>
       </ul>
-      <Button onClick={() => updateGameStatus("GAME_STARTED")}>次へ</Button>
+      <Button onClick={() => updateGameStatus("GAME_ONGOING")}>次へ</Button>
     </>
   )
 }
