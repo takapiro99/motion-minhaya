@@ -5,14 +5,21 @@ import { SocketContext } from "../../SocketContext";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
-  const { ping } = useContext(SocketContext);
+  const { updateGameStatus, ping } = useContext(SocketContext);
 
   return (
     <div>
       <Link to="/">Top</Link> | <Link to="/game">Game</Link> |{" "}
       <Link to="/create-quiz">CreateQuiz</Link>
       <div>This is a top page.</div>
-      <Button onClick={() => navigate("/game")}>問題を解く</Button>
+      <Button
+        onClick={() => {
+          updateGameStatus("NAME_INPUTING")
+          navigate("/game")}
+        }
+      >
+        問題を解く
+      </Button>
       <Button onClick={() => navigate("/create-quiz")}>問題を作る</Button>
       <Button onClick={() => ping()}>ping</Button>
     </div>

@@ -1,15 +1,13 @@
 import { ChangeEvent, FC, useContext, useState } from "react";
 import { Button, Input } from "semantic-ui-react";
-import { GameStatus } from "../../domain/type";
 import { SocketContext } from "../../SocketContext";
 
-type NameInputingProps = {
-  updateGameStatus: (gameStatus: GameStatus) => void
-}
+// type NameInputingProps = {}
 
-export const NameInputing: FC<NameInputingProps> = ({updateGameStatus}) => {
+export const NameInputing: FC = () => {
   const [name, setName] = useState<string>("") // TODO: ローカルストレージに保存・取得したい
-  const { enterWaitingRoom } = useContext(SocketContext)
+  const { updateGameStatus, enterWaitingRoom } = useContext(SocketContext)
+  
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value)
   }

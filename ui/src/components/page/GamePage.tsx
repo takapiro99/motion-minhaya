@@ -1,6 +1,5 @@
-import { FC } from "react"
+import { FC, useContext } from "react"
 import { Link } from "react-router-dom"
-import { useGameStatus } from "../../hooks/useGameStatus"
 import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
@@ -8,21 +7,23 @@ import { ParticipantsMatched } from "../game/ParticipantsMatched"
 import { GameStarted } from "../game/GameStarted"
 import { GameOngoing } from "../game/GameOngoing"
 import { GameFinished } from "../game/GameFinished"
+import { SocketContext } from "../../SocketContext"
 
 export const GamePage: FC = () => {
-  const {gameStatus, updateGameStatus} = useGameStatus()
+  const { gameStatus } = useContext(SocketContext)
 
   return (
     <div>
       <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
       <div>This is a game page.</div>
-      {gameStatus === "NAME_INPUTING" && <NameInputing updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "GAME_STARTED" && <GameStarted updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "GAME_ONGOING" && <GameOngoing updateGameStatus={updateGameStatus}/>}
-      {gameStatus === "GAME_FINISIED" && <GameFinished updateGameStatus={updateGameStatus}/>}
+      {gameStatus === "OUT_OF_GAME" && <div>異常な gameStatus です。</div>}
+      {gameStatus === "NAME_INPUTING" && <NameInputing />}
+      {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable />}
+      {gameStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
+      {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />}
+      {gameStatus === "GAME_STARTED" && <GameStarted />}
+      {gameStatus === "GAME_ONGOING" && <GameOngoing />}
+      {gameStatus === "GAME_FINISIED" && <GameFinished />}
     </div>
   )
 }
