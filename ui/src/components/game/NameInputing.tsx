@@ -22,7 +22,12 @@ export const NameInputing: FC = () => {
         value={userName}
         onChange={handleInputChange}
       />
-      <Button onClick={handleButtonClick}>決定</Button>
+      <Button
+        onClick={handleButtonClick}
+        disabled={userName === ""}
+      >
+        決定
+      </Button>
     </>
   )
 }
