@@ -1,8 +1,14 @@
-import { createContext, FC, ReactNode, useEffect } from "react";
+import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { Game } from "../../api/src/common/utils/db";
+import { GameStatus } from "./domain/type";
 
 type SocketContextType = {
   socket: Socket;
+  gameStatus: GameStatus;
+  updateGameStatus: (gameStatus: GameStatus) => void;
+  game: Game;
+  updateGame: (game: Game) => void;
   ping: () => void;
   enterWaitingRoom: (name: string) => void;
 };
@@ -18,11 +24,36 @@ const enterWaitingRoom = (name: string) => {
   })
 }
 
-export const SocketContext = createContext<SocketContextType>({ socket, ping, enterWaitingRoom });
+export const SocketContext = createContext<SocketContextType>({
+  socket,
+  gameStatus: "OUT_OF_GAME",
+  updateGameStatus: () => {},
+  game: {
+    status: "NONE",
+    gameId: null,
+    participants: null,
+    currentQuizNumberOneIndexed: null,
+    quizzes: null,
+    gameResult: null,
+  },
+  updateGame: () => {},
+  ping,
+  enterWaitingRoom,
+});
 
 export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const [gameStatus, setGameStatus] = useState<GameStatus>("OUT_OF_GAME")
+  const [game, setGame] = useState<Game>({
+    status: "NONE",
+    gameId: null,
+    participants: null,
+    currentQuizNumberOneIndexed: null,
+    quizzes: null,
+    gameResult: null,
+  })
+
   useEffect(() => {
     socket.on("connect", () => {
       console.log("connected!", socket);
@@ -37,7 +68,17 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   }, []);
 
   return (
-    <SocketContext.Provider value={{ socket, ping, enterWaitingRoom }}>
+    <SocketContext.Provider
+      value={{
+        socket,
+        gameStatus,
+        updateGameStatus: setGameStatus,
+        game,
+        updateGame: setGame,
+        ping,
+        enterWaitingRoom
+      }}
+    >
       {children}
     </SocketContext.Provider>
   );
