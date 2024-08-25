@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { Quiz, WaitingGame } from "../models/game";
+import type { OnGoingGame, Quiz, WaitingGame } from "../models/game";
 import type { MotionMinhayaWSServerMessage } from "../models/messages";
 
 const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
@@ -59,4 +59,24 @@ export const emitter = {
       }
     })
   },
+  emitParticipantsAnswerStatusUpdated: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, {
+          event: "PARTICIPANTS_ANSWER_STATUS_UPDATED",
+          gameId: gameId,
+          quizNumber: 1, // TODO
+          participants: guesses.map((guess) => {
+            return {
+              clientId: guess.clientId,
+              name: guess.name,
+              status: guess.guess !== null ? "ANSWER_SUBMITTED" : guess.buttonPressedTimeMs ? "BUTTON_PRESSED" : "BUTTON_NOT_PRESSED",
+              buttonPressedTimeMs: guess.buttonPressedTimeMs,
+            }
+          })
+        });
+      }
+    })
+  }
 };

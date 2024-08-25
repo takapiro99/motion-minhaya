@@ -50,6 +50,9 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
           name: name,
         },
       ],
+      currentQuizNumberOneIndexed: 1,
+      quizzes: null,
+      gameResult: null,
     };
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
