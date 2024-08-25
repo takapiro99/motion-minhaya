@@ -25,11 +25,11 @@ export type OnGoingGame = {
   currentQuizNumberOneIndexed: number;
   quizzes: Quiz[];
   gameResult:
-    | {
-        clientId: string;
-        gamePoint: number;
-      }[]
-    | null;
+  | {
+    clientId: string;
+    gamePoint: number;
+  }[]
+  | null;
 };
 
 export const createOngoingGame = (waitingGame: WaitingGame): OnGoingGame => {
@@ -48,8 +48,7 @@ export type Quiz = {
   motionId: string;
   motionStartTimestamp: number; // unix timestamp
   answerFinishTimestamp: number; // unix timestamp
-  guesses: {
-    clientId: string;
+  guesses: Participant & {
     buttonPressedTimeMs: number;
     similarityPoint: number; // 類似度点数
     quizPoint: number; // この問題で得た点数

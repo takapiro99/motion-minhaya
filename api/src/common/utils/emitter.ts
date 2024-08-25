@@ -32,21 +32,31 @@ export const emitter = {
   emitWaitingRoomUnjoinable: (socket: Socket) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_UNJOINABLE" });
   },
-  emitGameStarted: (socket: Socket, game: WaitingGame) => {
-    emitToSocketAck(socket, {
-      event: "GAME_STARTED",
-      gameId: game.gameId,
-      participants: game.participants,
-    });
+  emitGameStarted: (socketIDs: string[], game: WaitingGame, io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, {
+          event: "GAME_STARTED",
+          gameId: game.gameId,
+          participants: game.participants,
+        });
+      }
+    })
   },
-  emitQuizStarted: (socket: Socket, gameId: string, quiz: Quiz) => {
-    emitToSocketAck(socket, {
-      event: "QUIZ_STARTED",
-      gameId: gameId,
-      quizNumber: quiz.quizNumber,
-      motionId: quiz.motionId,
-      motionStartTimestamp: quiz.motionStartTimestamp.toString(),
-      answerFinishTimestamp: quiz.answerFinishTimestamp.toString(),
-    });
+  emitQuizStarted: (socketIDs: string[], gameId: string, quiz: Quiz, io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, {
+          event: "QUIZ_STARTED",
+          gameId: gameId,
+          quizNumber: quiz.quizNumber,
+          motionId: quiz.motionId,
+          motionStartTimestamp: quiz.motionStartTimestamp.toString(),
+          answerFinishTimestamp: quiz.answerFinishTimestamp.toString(),
+        });
+      }
+    })
   },
 };

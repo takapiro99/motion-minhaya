@@ -1,4 +1,4 @@
-import type { OnGoingGame, WaitingGame } from "../models/game";
+import type { OnGoingGame, Participant, WaitingGame } from "../models/game";
 import { LowSync, MemorySync } from "./lowdb";
 
 // With this adapter, calling `db.write()` will do nothing.
@@ -43,16 +43,17 @@ type OnGoing = {
     guesses: {
       clientId: string;
       buttonPressedTimeMs: number;
+      guess: string | null
       similarityPoint: number; // 類似度点数
       quizPoint: number; // この問題で得た点数
     }[];
   }[];
   gameResult:
-    | {
-        clientId: string;
-        gamePoint: number;
-      }[]
-    | null;
+  | {
+    clientId: string;
+    gamePoint: number;
+  }[]
+  | null;
 }
 
 export type Game = None | WaitingParticipants | OnGoing
@@ -93,12 +94,9 @@ type DataBase = {
           quizPoint: number; // この問題で得た点数
         }[];
       }[];
-      gameResult:
-      | {
-        clientId: string;
+      gameResult: Participant & {
         gamePoint: number;
-      }[]
-      | null;
+      }[] | null;
     }
   )[];
 };
