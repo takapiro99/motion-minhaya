@@ -1,6 +1,6 @@
 import { constants } from "@/common/constants";
-import type { WaitingGame } from "@/common/models/game";
-import { type MotionMinhayaWSClientMessage, MotionMinhayaWSServerMessage } from "@/common/models/messages";
+import { type Quiz, type WaitingGame, createOngoingGame } from "@/common/models/game";
+import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
 import type { Socket } from "socket.io";
@@ -9,6 +9,7 @@ import { v4 } from "uuid";
 export const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
 export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) => {
+  console.log(`[receive: ${body.action}] ${socket.id} -> ${JSON.stringify(body)}`);
   switch (body.action) {
     case "PING":
       return handlePing(socket);
@@ -37,9 +38,11 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
 
   if (waitingRooms.length === 0) {
     // create new Game
+    const gameID = v4();
     const clientId = v4();
     const newWaitingGame: WaitingGame = {
-      gameId: v4(),
+      status: "WAITING_PARTICIPANTS",
+      gameId: gameID,
       participants: [
         {
           connectionId: socket.id,
@@ -50,6 +53,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
     };
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
+    console.log(`[waitingRoom] 一人目の待機者。gameID: ${gameID}, name: ${name}`);
   } else if (waitingRooms.length === 1) {
     // join existing Game
     const clientId = v4();
@@ -61,8 +65,15 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
     });
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
+    console.log(
+      `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`,
+    );
     if (newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME) {
       // start game
+      console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
+      db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
+      emitter.emitGameStarted(socket, newWaitingGame);
+      startQuiz(socket, newWaitingGame.gameId);
     }
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
@@ -75,4 +86,25 @@ const handleButtonPressed = (socket: Socket) => {
 
 const handleGuessAnswer = (socket: Socket, answer: string) => {
   // TODO
+};
+
+const startQuiz = (socket: Socket, gameId: string) => {
+  const waitingGame = db.game.getGame(gameId);
+  if (!waitingGame || waitingGame.status !== "WAITING_PARTICIPANTS") return;
+  const ongoingGame = createOngoingGame(waitingGame);
+  db.game.updateOngoingGame({
+    ...ongoingGame,
+    quizzes: ongoingGame.quizzes.concat(getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)),
+  });
+  emitter.emitQuizStarted(socket, ongoingGame.gameId, ongoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1]);
+};
+
+const getRandomQuiz = (gameId: string, quizNumber: number): Quiz => {
+  return {
+    motionId: "00000000-0000-4B00-9000-0000000001", // TODO
+    quizNumber: quizNumber,
+    motionStartTimestamp: Date.now(),
+    answerFinishTimestamp: Date.now() + constants.ANSWER_TIME_MS,
+    guesses: [],
+  };
 };
