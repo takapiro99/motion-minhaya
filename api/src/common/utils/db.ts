@@ -4,7 +4,7 @@ import { LowSync, MemorySync } from "./lowdb";
 // With this adapter, calling `db.write()` will do nothing.
 // One use case for this adapter can be for tests.
 
-export type None = {
+type None = {
   status: "NONE";
   gameId: null;
   participants: null;
