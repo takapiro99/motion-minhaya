@@ -71,12 +71,26 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "WAITING_ROOM_JOINED") {
         console.log("WAITING_ROOM_JOINED recieved!")
-        setGame(message)
+        setGame({
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+          currentQuizNumberOneIndexed: 1,
+          quizzes: null,
+          gameResult: null,
+        })
         setGameStatus("PARTICIPANTS_WAITING")
       }
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
-        setGame(message)
+        setGame({
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+          currentQuizNumberOneIndexed: 1,
+          quizzes: null,
+          gameResult: null,
+        })
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
@@ -84,7 +98,14 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "GAME_STARTED") {
         console.log("GAME_STARTED recieved!")
-        setGame(message)
+        setGame({
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+          currentQuizNumberOneIndexed: 1,
+          quizzes: null,
+          gameResult: null,
+        })
         setGameStatus("GAME_STARTED")
       }
       if (message.event === "QUIZ_STARTED") {
