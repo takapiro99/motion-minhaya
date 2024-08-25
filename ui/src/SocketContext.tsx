@@ -87,6 +87,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame(message)
         setGameStatus("GAME_STARTED")
       }
+      if (message.event === "QUIZ_STARTED") {
+        console.log("QUIZ_STARTED recieved!")
+        setGame(message)
+        if (gameStatus !== "GAME_ONGOING") setGameStatus("GAME_ONGOING")
+      }
     });
   }, []);
 
