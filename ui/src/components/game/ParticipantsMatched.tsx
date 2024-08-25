@@ -1,22 +1,21 @@
 import { FC, useContext } from "react";
-import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
 
 // type ParticipantsMatchedProps = {}
 
 export const ParticipantsMatched: FC = () => {
-  const { updateGameStatus } = useContext(SocketContext)
+  const { game } = useContext(SocketContext)
   
   return (
     <>
-      <div>参加者が決定しました。</div>
+      <div>参加者が決定しました。ゲーム開始までしばらくお待ちください。</div>
       <ul>
-        <li>たろう</li>
-        <li>じろう</li>
-        <li>さぶろう</li>
-        <li>しろう</li>
+        {game.participants?.map((participant) => {
+          return (
+            <li>{participant.name}</li>
+          )
+        })}
       </ul>
-      <Button onClick={() => updateGameStatus("GAME_ONGOING")}>次へ</Button>
     </>
   )
 }
