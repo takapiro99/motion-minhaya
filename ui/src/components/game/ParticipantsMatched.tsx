@@ -3,6 +3,7 @@ import { SocketContext } from "../../SocketContext";
 
 // type ParticipantsMatchedProps = {}
 
+// 消すかも
 export const ParticipantsMatched: FC = () => {
   const { game } = useContext(SocketContext)
   
