@@ -10,7 +10,6 @@ export const ToTopPageButton: FC = () => {
   return (
     <Button
       onClick={() => {
-        updateGameStatus("OUT_OF_GAME")
         updateGame({
           status: "NONE",
           gameId: null,
@@ -19,6 +18,7 @@ export const ToTopPageButton: FC = () => {
           quizzes: null,
           gameResult: null,
         })
+        updateGameStatus("OUT_OF_GAME")
         navigate("/")
       }}
     >
