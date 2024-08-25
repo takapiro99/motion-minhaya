@@ -4,14 +4,16 @@ import { LowSync, MemorySync } from "./lowdb";
 // With this adapter, calling `db.write()` will do nothing.
 // One use case for this adapter can be for tests.
 
-export type Game = {
+export type None = {
   status: "NONE";
   gameId: null;
   participants: null;
   currentQuizNumberOneIndexed: null;
   quizzes: null;
   gameResult: null;
-} | {
+}
+
+type WaitingParticipants = {
   status: "WAITING_PARTICIPANTS";
   gameId: string;
   participants: {
@@ -22,7 +24,9 @@ export type Game = {
   currentQuizNumberOneIndexed: 1;
   quizzes: null;
   gameResult: null;
-} | {
+}
+
+type OnGoing = {
   status: "ONGOING";
   gameId: string;
   participants: {
@@ -50,6 +54,8 @@ export type Game = {
       }[]
     | null;
 }
+
+export type Game = None | WaitingParticipants | OnGoing
 
 type DataBase = {
   // games: Game[], <- でいいかも？
