@@ -1,14 +1,14 @@
 import { constants } from "@/common/constants";
-import { type Quiz, type WaitingGame, createOngoingGame } from "@/common/models/game";
+import { Participant, type Quiz, type WaitingGame, createOngoingGame } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
-import type { Socket } from "socket.io";
+import type { Server, Socket } from "socket.io";
 import { v4 } from "uuid";
 
 export const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
-export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) => {
+export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, io: Server) => {
   console.log(`[receive: ${body.action}] ${socket.id} -> ${JSON.stringify(body)}`);
   switch (body.action) {
     case "PING":
@@ -16,7 +16,7 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket) 
     case "PING_WITH_ACK":
       return handlePingWithAck(socket, body.message ?? "");
     case "ENTER_WAITING_ROOM":
-      return handleEnterWaitingRoom(socket, body.name);
+      return handleEnterWaitingRoom(socket, body.name, io);
     case "BUTTON_PRESSED":
       return handleButtonPressed(socket);
     case "GUESS_ANSWER":
@@ -30,7 +30,7 @@ const handlePing = (socket: Socket) => emitter.emitPong(socket);
 
 const handlePingWithAck = (socket: Socket, message: string) => emitter.emitPongWithAck(socket, message);
 
-const handleEnterWaitingRoom = (socket: Socket, name: string) => {
+const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
   // 空きがあればいれて、保存する
   // 追加されたよーというイベントを投げる
   // 4人だったらゲームを始める処理を呼ぶ
@@ -50,6 +50,9 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
           name: name,
         },
       ],
+      currentQuizNumberOneIndexed: 1,
+      quizzes: null,
+      gameResult: null,
     };
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
@@ -68,12 +71,17 @@ const handleEnterWaitingRoom = (socket: Socket, name: string) => {
     console.log(
       `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`,
     );
+    emitter.emitWaitingRoomUpdated(getSocketIDsFromParticipants(newWaitingGame.participants), newWaitingGame, io);
     if (newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME) {
       // start game
       console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
       db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
-      emitter.emitGameStarted(socket, newWaitingGame);
-      startQuiz(socket, newWaitingGame.gameId);
+      emitter.emitGameStarted(
+        newWaitingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+        newWaitingGame,
+        io
+      );
+      startQuiz1(newWaitingGame.gameId, io);
     }
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
@@ -88,7 +96,7 @@ const handleGuessAnswer = (socket: Socket, answer: string) => {
   // TODO
 };
 
-const startQuiz = (socket: Socket, gameId: string) => {
+const startQuiz1 = (gameId: string, io: Server) => {
   const waitingGame = db.game.getGame(gameId);
   if (!waitingGame || waitingGame.status !== "WAITING_PARTICIPANTS") return;
   const ongoingGame = createOngoingGame(waitingGame);
@@ -96,7 +104,12 @@ const startQuiz = (socket: Socket, gameId: string) => {
     ...ongoingGame,
     quizzes: ongoingGame.quizzes.concat(getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)),
   });
-  emitter.emitQuizStarted(socket, ongoingGame.gameId, ongoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1]);
+  emitter.emitQuizStarted(
+    getSocketIDsFromParticipants(ongoingGame.participants),
+    ongoingGame.gameId,
+    ongoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1],
+    io
+  );
 };
 
 const getRandomQuiz = (gameId: string, quizNumber: number): Quiz => {
@@ -108,3 +121,7 @@ const getRandomQuiz = (gameId: string, quizNumber: number): Quiz => {
     guesses: [],
   };
 };
+
+export const getSocketIDsFromParticipants = (participants: Participant[]): string[] => {
+  return participants.map((p) => p.connectionId).filter((p) => p !== null);
+}

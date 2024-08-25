@@ -16,6 +16,9 @@ export type WaitingGame = {
   status: "WAITING_PARTICIPANTS";
   gameId: string;
   participants: Participant[];
+  currentQuizNumberOneIndexed: 1;
+  quizzes: null;
+  gameResult: null;
 };
 
 export type OnGoingGame = {
@@ -24,12 +27,9 @@ export type OnGoingGame = {
   participants: Participant[];
   currentQuizNumberOneIndexed: number;
   quizzes: Quiz[];
-  gameResult:
-    | {
-        clientId: string;
-        gamePoint: number;
-      }[]
-    | null;
+  gameResult: (Participant & {
+    gamePoint: number;
+  })[] | null;
 };
 
 export const createOngoingGame = (waitingGame: WaitingGame): OnGoingGame => {
@@ -48,12 +48,12 @@ export type Quiz = {
   motionId: string;
   motionStartTimestamp: number; // unix timestamp
   answerFinishTimestamp: number; // unix timestamp
-  guesses: {
-    clientId: string;
+  guesses: (Participant & {
     buttonPressedTimeMs: number;
+    guess: string | null;
     similarityPoint: number; // 類似度点数
     quizPoint: number; // この問題で得た点数
-  }[];
+  })[];
 };
 
 export type Participant = {

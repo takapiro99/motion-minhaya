@@ -11,7 +11,7 @@ export const wsRoutes = (io: Server) => {
     });
 
     socket.on("game", (message: MotionMinhayaWSClientMessage) => {
-      gameHandler(message, socket);
+      gameHandler(message, socket, io);
     });
   });
 };
