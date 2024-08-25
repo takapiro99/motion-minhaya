@@ -4,7 +4,61 @@ import { LowSync, MemorySync } from "./lowdb";
 // With this adapter, calling `db.write()` will do nothing.
 // One use case for this adapter can be for tests.
 
+type None = {
+  status: "NONE";
+  gameId: null;
+  participants: null;
+  currentQuizNumberOneIndexed: null;
+  quizzes: null;
+  gameResult: null;
+}
+
+type WaitingParticipants = {
+  status: "WAITING_PARTICIPANTS";
+  gameId: string;
+  participants: {
+    connectionId: string | null;
+    clientId: string;
+    name: string;
+  }[];
+  currentQuizNumberOneIndexed: 1;
+  quizzes: null;
+  gameResult: null;
+}
+
+type OnGoing = {
+  status: "ONGOING";
+  gameId: string;
+  participants: {
+    connectionId: string | null;
+    clientId: string;
+    name: string;
+  }[];
+  currentQuizNumberOneIndexed: number;
+  quizzes: {
+    quizNumber: number;
+    motionId: string;
+    motionStartTimestamp: number; // unix timestamp
+    answerFinishTimestamp: number; // unix timestamp
+    guesses: {
+      clientId: string;
+      buttonPressedTimeMs: number;
+      similarityPoint: number; // 類似度点数
+      quizPoint: number; // この問題で得た点数
+    }[];
+  }[];
+  gameResult:
+    | {
+        clientId: string;
+        gamePoint: number;
+      }[]
+    | null;
+}
+
+export type Game = None | WaitingParticipants | OnGoing
+
 type DataBase = {
+  // games: Game[], <- でいいかも？
   games: (
     | {
       status: "WAITING_PARTICIPANTS";

@@ -1,15 +1,23 @@
 import { useState } from "react"
-import { GameStatus } from "../domain/type"
+import { Game } from "../../../api/src/common/utils/db"
 
 export type UseGame = {
-  gameStatus: GameStatus,
-  updateGameStatus: (gameStatus: GameStatus) => void,
+  game: Game,
+  updateGame: (game: Game) => void,
 }
 
 export const useGame = (): UseGame => {
-  const [gameStatus, setGameStatus] = useState<GameStatus>("NAME_INPUTING")
+  const [game, setGame] = useState<Game>({
+    status: "NONE",
+    gameId: null,
+    participants: null,
+    currentQuizNumberOneIndexed: null,
+    quizzes: null,
+    gameResult: null,
+  })
+  
   return {
-    gameStatus: gameStatus,
-    updateGameStatus: setGameStatus,
+    game: game,
+    updateGame: setGame,
   }
 }
