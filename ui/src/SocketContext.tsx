@@ -72,9 +72,6 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
         setGame(message)
-        if (message.participants.length === 4) {
-          setGameStatus("PARTICIPANTS_MATCHED")
-        }
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
@@ -82,6 +79,13 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
     });
   }, []);
+
+  // 参加者が 4 人集まったら PARTICIPANTS_MATCHED に遷移する
+  useEffect(() => {
+    if (game.participants?.length === 4) {
+      setGameStatus("PARTICIPANTS_MATCHED")
+    }
+  }, [game])
 
   // gameStatus の状態確認用
   useEffect(() => {
