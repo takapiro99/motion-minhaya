@@ -9,6 +9,8 @@ type SocketContextType = {
   updateGameStatus: (gameStatus: GameStatus) => void;
   game: Game;
   updateGame: (game: Game) => void;
+  userName: string;
+  updateUserName: (userName: string) => void;
   ping: () => void;
   enterWaitingRoom: (name: string) => void;
 };
@@ -37,6 +39,8 @@ export const SocketContext = createContext<SocketContextType>({
     gameResult: null,
   },
   updateGame: () => {},
+  userName: "",
+  updateUserName: () => {},
   ping,
   enterWaitingRoom,
 });
@@ -53,6 +57,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
     quizzes: null,
     gameResult: null,
   })
+  const [userName, setUserName] = useState<string>("") // TODO: ローカルストレージに保存・取得したい
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -103,6 +108,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         updateGameStatus: setGameStatus,
         game,
         updateGame: setGame,
+        userName,
+        updateUserName: setUserName,
         ping,
         enterWaitingRoom
       }}
