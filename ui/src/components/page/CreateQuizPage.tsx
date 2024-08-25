@@ -1,10 +1,10 @@
 import { FC } from "react"
-import { Link } from "react-router-dom"
+import { ToTopPageButton } from "../utils/toTopPageButton"
 
 export const CreateQuizPage: FC = () => {  
   return (
     <div>
-      <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
+      <ToTopPageButton />
       <div>This is a create quiz page.</div>
     </div>
   )

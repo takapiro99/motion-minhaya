@@ -1,5 +1,4 @@
 import { FC, useContext } from "react"
-import { Link } from "react-router-dom"
 import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
@@ -8,13 +7,14 @@ import { GameStarted } from "../game/GameStarted"
 import { GameOngoing } from "../game/GameOngoing"
 import { GameFinished } from "../game/GameFinished"
 import { SocketContext } from "../../SocketContext"
+import { ToTopPageButton } from "../utils/toTopPageButton"
 
 export const GamePage: FC = () => {
   const { gameStatus } = useContext(SocketContext)
 
   return (
     <div>
-      <Link to="/">Top</Link> | <Link to="/game">Game</Link> | <Link to="/create-quiz">CreateQuiz</Link>
+      <ToTopPageButton />
       <div>This is a game page.</div>
       {gameStatus === "OUT_OF_GAME" && <div>異常な gameStatus です。</div>}
       {gameStatus === "NAME_INPUTING" && <NameInputing />}
