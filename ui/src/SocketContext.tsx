@@ -72,6 +72,9 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
         setGame(message)
+        if (message.participants.length === 4) {
+          setGameStatus("PARTICIPANTS_MATCHED")
+        }
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
