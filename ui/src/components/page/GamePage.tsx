@@ -2,8 +2,8 @@ import { FC, useContext } from "react"
 import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
-import { ParticipantsMatched } from "../game/ParticipantsMatched"
-// import { GameStarted } from "../game/GameStarted"
+// import { ParticipantsMatched } from "../game/ParticipantsMatched"
+import { GameStarted } from "../game/GameStarted"
 import { GameOngoing } from "../game/GameOngoing"
 import { GameFinished } from "../game/GameFinished"
 import { SocketContext } from "../../SocketContext"
@@ -22,8 +22,8 @@ export const GamePage: FC = () => {
       {gameStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable />}
       {gameStatus === "WAITING_ROOM_UNJOINABLE" && <WaitingRoomUnjoinable />}
       {gameStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
-      {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />}
-      {/* {gameStatus === "GAME_STARTED" && <GameStarted />} */}
+      {/* {gameStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />} */}
+      {gameStatus === "GAME_STARTED" && <GameStarted />}
       {gameStatus === "GAME_ONGOING" && <GameOngoing />}
       {gameStatus === "GAME_FINISIED" && <GameFinished />}
     </div>
