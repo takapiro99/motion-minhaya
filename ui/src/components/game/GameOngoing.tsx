@@ -1,12 +1,12 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { Button } from "semantic-ui-react";
-import { GameStatus } from "../../domain/type";
+import { SocketContext } from "../../SocketContext";
 
-type GameOngoingProps = {
-  updateGameStatus: (gameStatus: GameStatus) => void
-}
+// type GameOngoingProps = {}
 
-export const GameOngoing: FC<GameOngoingProps> = ({updateGameStatus}) => {
+export const GameOngoing: FC = () => {
+  const { updateGameStatus } = useContext(SocketContext)
+  
   return (
     <>
       <div>第 1 問</div>

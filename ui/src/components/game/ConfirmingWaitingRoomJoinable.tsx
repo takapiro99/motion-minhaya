@@ -1,12 +1,12 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { Button } from "semantic-ui-react";
-import { GameStatus } from "../../domain/type";
+import { SocketContext } from "../../SocketContext";
 
-type ConfirmingWaitingRoomJoinableProps = {
-  updateGameStatus: (gameStatus: GameStatus) => void
-}
+// type ConfirmingWaitingRoomJoinableProps = {}
 
-export const ConfirmingWaitingRoomJoinable: FC<ConfirmingWaitingRoomJoinableProps> = ({updateGameStatus}) => {
+export const ConfirmingWaitingRoomJoinable: FC = () => {
+  const { updateGameStatus } = useContext(SocketContext)
+  
   return (
     <>
       <div>入室可能か確認中です。</div>

@@ -1,13 +1,12 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { Button } from "semantic-ui-react";
-import { GameStatus } from "../../domain/type";
 import { useNavigate } from "react-router-dom";
+import { SocketContext } from "../../SocketContext";
 
-type GameFinishedProps = {
-  updateGameStatus: (gameStatus: GameStatus) => void
-}
+// type GameFinishedProps = {}
 
-export const GameFinished: FC<GameFinishedProps> = ({updateGameStatus}) => {
+export const GameFinished: FC = () => {
+  const { updateGameStatus } = useContext(SocketContext)
   const navigate = useNavigate()
 
   return (
@@ -21,7 +20,7 @@ export const GameFinished: FC<GameFinishedProps> = ({updateGameStatus}) => {
       </ul>
       <Button
         onClick={() => {
-          updateGameStatus("NAME_INPUTING")
+          updateGameStatus("OUT_OF_GAME")
           navigate("/")
         }}
       >
