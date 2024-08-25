@@ -1,12 +1,12 @@
 import { useState } from "react"
 import { GameStatus } from "../domain/type"
 
-export type UseGame = {
+export type UseGameStatus = {
   gameStatus: GameStatus,
   updateGameStatus: (gameStatus: GameStatus) => void,
 }
 
-export const useGame = (): UseGame => {
+export const useGameStatus = (): UseGameStatus => {
   const [gameStatus, setGameStatus] = useState<GameStatus>("NAME_INPUTING")
   return {
     gameStatus: gameStatus,
