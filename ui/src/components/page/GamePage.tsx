@@ -1,6 +1,6 @@
 import { FC } from "react"
 import { Link } from "react-router-dom"
-import { useGame } from "../../hooks/useGame"
+import { useGameStatus } from "../../hooks/useGameStatus"
 import { NameInputing } from "../game/NameInputing"
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
@@ -10,7 +10,7 @@ import { GameOngoing } from "../game/GameOngoing"
 import { GameFinished } from "../game/GameFinished"
 
 export const GamePage: FC = () => {
-  const {gameStatus, updateGameStatus} = useGame()
+  const {gameStatus, updateGameStatus} = useGameStatus()
 
   return (
     <div>
