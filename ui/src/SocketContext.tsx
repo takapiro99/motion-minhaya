@@ -77,15 +77,13 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
         setGameStatus("WAITING_ROOM_UNJOINABLE")
       }
+      if (message.event === "GAME_STARTED") {
+        console.log("GAME_STARTED recieved!")
+        setGame(message)
+        setGameStatus("GAME_STARTED")
+      }
     });
   }, []);
-
-  // 参加者が 4 人集まったら PARTICIPANTS_MATCHED に遷移する
-  useEffect(() => {
-    if (game.participants?.length === 4) {
-      setGameStatus("PARTICIPANTS_MATCHED")
-    }
-  }, [game])
 
   // gameStatus の状態確認用
   useEffect(() => {
