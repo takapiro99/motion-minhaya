@@ -110,7 +110,21 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
-        setGame(message)
+        const addedQuiz = {
+          quizNumber: message.quizNumber,
+          motionId: message.motionId,
+          motionStartTimestamp: message.motionStartTimestamp,
+          answerFinishTimestamp: message.answerFinishTimestamp,
+          guesses: null, // 確認する
+        }
+        setGame({
+          status: "ONGOING",
+          gameId: message.gameId,
+          participants: message.participants,
+          currentQuizNumberOneIndexed: message.quizNumber,
+          quizzes: game.quizzes ? game.quizzes.concat(addedQuiz) : addedQuiz,
+          gameResult: null,
+        })
         if (gameStatus !== "GAME_ONGOING") setGameStatus("GAME_ONGOING")
       }
     });
