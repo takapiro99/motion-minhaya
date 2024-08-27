@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { OnGoingGame, Quiz, WaitingGame } from "../models/game";
+import type { OnGoingGame, Quiz, WaitingParticipantsGame } from "../models/game";
 import type { MotionMinhayaWSServerMessage } from "../models/messages";
 
 const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
@@ -18,10 +18,10 @@ export const emitter = {
   emitPongWithAck: (socket: Socket, message: string) => {
     emitToSocketAck(socket, { event: "PONG_WITH_ACK", message: message });
   },
-  emitWaitingRoomJoined: (socket: Socket, waitingGame: WaitingGame, clientId: string) => {
+  emitWaitingRoomJoined: (socket: Socket, waitingGame: WaitingParticipantsGame, clientId: string) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_JOINED", ...waitingGame, clientId });
   },
-  emitWaitingRoomUpdated: (socketIDs: string[], waitingGame: WaitingGame, io: Server) => {
+  emitWaitingRoomUpdated: (socketIDs: string[], waitingGame: WaitingParticipantsGame, io: Server) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
@@ -32,7 +32,7 @@ export const emitter = {
   emitWaitingRoomUnjoinable: (socket: Socket) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_UNJOINABLE" });
   },
-  emitGameStarted: (socketIDs: string[], game: WaitingGame, io: Server) => {
+  emitGameStarted: (socketIDs: string[], game: WaitingParticipantsGame, io: Server) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {

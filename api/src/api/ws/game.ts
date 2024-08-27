@@ -1,5 +1,5 @@
 import { constants } from "@/common/constants";
-import { Participant, type Quiz, type WaitingGame, createOngoingGame } from "@/common/models/game";
+import { Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
@@ -40,7 +40,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
     // create new Game
     const gameID = v4();
     const clientId = v4();
-    const newWaitingGame: WaitingGame = {
+    const newWaitingGame: WaitingParticipantsGame = {
       status: "WAITING_PARTICIPANTS",
       gameId: gameID,
       participants: [

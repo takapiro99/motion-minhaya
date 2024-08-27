@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Game } from "../../api/src/common/utils/db";
+import { Game } from "../../api/src/common/models/game";
 import { GameStatus } from "./domain/type";
 
 type SocketContextType = {

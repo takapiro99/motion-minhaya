@@ -12,7 +12,16 @@ export type GameServerEvent =
   | "PARTICIPANTS_ANSWER_STATUS_UPDATED"
   | "QUIZ_RESULT";
 
-export type WaitingGame = {
+export type NoneGame = {
+  status: "NONE";
+  gameId: null;
+  participants: null;
+  currentQuizNumberOneIndexed: null;
+  quizzes: null;
+  gameResult: null;
+}
+
+export type WaitingParticipantsGame = {
   status: "WAITING_PARTICIPANTS";
   gameId: string;
   participants: Participant[];
@@ -32,7 +41,9 @@ export type OnGoingGame = {
   })[] | null;
 };
 
-export const createOngoingGame = (waitingGame: WaitingGame): OnGoingGame => {
+export type Game = NoneGame | WaitingParticipantsGame | OnGoingGame
+
+export const createOngoingGame = (waitingGame: WaitingParticipantsGame): OnGoingGame => {
   return {
     status: "ONGOING",
     gameId: waitingGame.gameId,
