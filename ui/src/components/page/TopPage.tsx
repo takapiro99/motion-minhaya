@@ -2,11 +2,11 @@ import { FC, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
-import { ToTopPageButton } from "../utils/toTopPageButton";
+import { ToTopPageButton } from "../utils/ToTopPageButton";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
-  const { updateGameStatus, ping } = useContext(SocketContext);
+  const { updateClientStatus, ping } = useContext(SocketContext);
 
   return (
     <div>
@@ -14,7 +14,7 @@ export const TopPage: FC = () => {
       <div>This is a top page.</div>
       <Button
         onClick={() => {
-          updateGameStatus("NAME_INPUTING")
+          updateClientStatus("NAME_INPUTING")
           navigate("/game")}
         }
       >

@@ -1,12 +1,12 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Game } from "../../api/src/common/utils/db";
-import { GameStatus } from "./domain/type";
+import { Game } from "../../api/src/common/models/game";
+import { ClientStatus } from "./domain/type";
 
 type SocketContextType = {
   socket: Socket;
-  gameStatus: GameStatus;
-  updateGameStatus: (gameStatus: GameStatus) => void;
+  clientStatus: ClientStatus;
+  updateClientStatus: (clientStatus: ClientStatus) => void;
   game: Game;
   updateGame: (game: Game) => void;
   userName: string;
@@ -28,8 +28,8 @@ const enterWaitingRoom = (name: string) => {
 
 export const SocketContext = createContext<SocketContextType>({
   socket,
-  gameStatus: "OUT_OF_GAME",
-  updateGameStatus: () => {},
+  clientStatus: "OUT_OF_GAME",
+  updateClientStatus: () => {},
   game: {
     status: "NONE",
     gameId: null,
@@ -48,7 +48,7 @@ export const SocketContext = createContext<SocketContextType>({
 export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [gameStatus, setGameStatus] = useState<GameStatus>("OUT_OF_GAME")
+  const [clientStatus, setClientStatus] = useState<ClientStatus>("OUT_OF_GAME")
   const [game, setGame] = useState<Game>({
     status: "NONE",
     gameId: null,
@@ -72,7 +72,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       if (message.event === "WAITING_ROOM_JOINED") {
         console.log("WAITING_ROOM_JOINED recieved!")
         setGame(message)
-        setGameStatus("PARTICIPANTS_WAITING")
+        setClientStatus("PARTICIPANTS_WAITING")
       }
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
@@ -80,25 +80,25 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
-        setGameStatus("WAITING_ROOM_UNJOINABLE")
+        setClientStatus("WAITING_ROOM_UNJOINABLE")
       }
       if (message.event === "GAME_STARTED") {
         console.log("GAME_STARTED recieved!")
         setGame(message)
-        setGameStatus("GAME_STARTED")
+        setClientStatus("GAME_STARTED")
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
         setGame(message)
-        if (gameStatus !== "GAME_ONGOING") setGameStatus("GAME_ONGOING")
+        if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
       }
     });
   }, []);
 
-  // gameStatus の状態確認用
+  // clientStatus の状態確認用
   useEffect(() => {
-    console.log("gameStatus:", gameStatus)
-  }, [gameStatus])
+    console.log("clientStatus:", clientStatus)
+  }, [clientStatus])
 
   // game の状態確認用
   useEffect(() => {
@@ -109,8 +109,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
     <SocketContext.Provider
       value={{
         socket,
-        gameStatus,
-        updateGameStatus: setGameStatus,
+        clientStatus: clientStatus,
+        updateClientStatus: setClientStatus,
         game,
         updateGame: setGame,
         userName,

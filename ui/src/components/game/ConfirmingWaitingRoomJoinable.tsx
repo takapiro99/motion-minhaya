@@ -5,12 +5,12 @@ import { SocketContext } from "../../SocketContext";
 // type ConfirmingWaitingRoomJoinableProps = {}
 
 export const ConfirmingWaitingRoomJoinable: FC = () => {
-  const { updateGameStatus } = useContext(SocketContext)
+  const { updateClientStatus } = useContext(SocketContext)
   
   return (
     <>
       <div>入室可能か確認中です。</div>
-      <Button onClick={() => updateGameStatus("PARTICIPANTS_WAITING")}>次へ</Button>
+      <Button onClick={() => updateClientStatus("PARTICIPANTS_WAITING")}>次へ</Button>
     </>
   )
 }

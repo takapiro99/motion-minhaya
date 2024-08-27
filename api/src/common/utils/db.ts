@@ -1,25 +1,11 @@
-import type { OnGoingGame, Participant, WaitingGame } from "../models/game";
+import type { OnGoingGame, WaitingParticipantsGame } from "../models/game";
 import { LowSync, MemorySync } from "./lowdb";
 
 // With this adapter, calling `db.write()` will do nothing.
 // One use case for this adapter can be for tests.
 
-type None = {
-  status: "NONE";
-  gameId: null;
-  participants: null;
-  currentQuizNumberOneIndexed: null;
-  quizzes: null;
-  gameResult: null;
-}
-
-type WaitingParticipants = WaitingGame
-type OnGoing = OnGoingGame
-
-export type Game = None | WaitingParticipants | OnGoing
-
 type DataBase = {
-  games: (WaitingParticipants | OnGoing)[];
+  games: (WaitingParticipantsGame | OnGoingGame)[];
 };
 
 const defaultData: DataBase = {
@@ -31,13 +17,13 @@ conn.read();
 
 export const db = {
   game: {
-    getWaitingRooms: (): WaitingGame[] => {
+    getWaitingRooms: (): WaitingParticipantsGame[] => {
       conn.read();
       if (!conn.data) return [];
 
       return conn.data.games.filter((room) => room.status === "WAITING_PARTICIPANTS");
     },
-    upsertWaitingGame: (waitingGame: WaitingGame) => {
+    upsertWaitingGame: (waitingGame: WaitingParticipantsGame) => {
       conn.read();
       if (!conn.data) return [];
 
@@ -61,7 +47,7 @@ export const db = {
         });
       }
     },
-    getGame: (gameId: string): WaitingGame | OnGoingGame | undefined => {
+    getGame: (gameId: string): WaitingParticipantsGame | OnGoingGame | undefined => {
       conn.read();
       if (!conn.data) return;
       const targetGame = conn.data.games.find((game) => game.gameId === gameId);

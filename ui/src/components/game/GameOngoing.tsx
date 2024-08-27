@@ -7,7 +7,7 @@ import { useQuizStatus } from "../../hooks/useQuizStatus";
 
 // 動作未検証
 export const GameOngoing: FC = () => {
-  const { game, updateGameStatus } = useContext(SocketContext)
+  const { game, updateClientStatus } = useContext(SocketContext)
   const currentQuiz = game.quizzes ? game.quizzes[game.currentQuizNumberOneIndexed - 1] : null
   const { quizStatus, updateQuizStatus } = useQuizStatus({
     motionStartTimestamp: currentQuiz?.motionStartTimestamp ?? null,
@@ -41,7 +41,7 @@ export const GameOngoing: FC = () => {
       )}
       {quizStatus === "ANSWERED" && <div>回答を提出しました。</div>}
       {quizStatus === "IN_RESULT" && <div>結果を表示しています。</div>}
-      <Button onClick={() => updateGameStatus("GAME_FINISIED")}>次へ</Button>
+      <Button onClick={() => updateClientStatus("GAME_FINISIED")}>次へ</Button>
     </>
   )
 }
