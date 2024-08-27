@@ -1,4 +1,4 @@
-import type { OnGoingGame, Participant, WaitingGame } from "../models/game";
+import type { OnGoingGame, WaitingGame } from "../models/game";
 import { LowSync, MemorySync } from "./lowdb";
 
 // With this adapter, calling `db.write()` will do nothing.

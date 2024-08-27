@@ -51,7 +51,7 @@ export const emitter = {
         emitToSocketAck(socket, {
           event: "QUIZ_STARTED",
           gameId: gameId,
-          quizNumber: quiz.quizNumber,
+          quizNumber: quiz?.quizNumber,
           motionId: quiz.motionId,
           motionStartTimestamp: quiz.motionStartTimestamp.toString(),
           answerFinishTimestamp: quiz.answerFinishTimestamp.toString(),

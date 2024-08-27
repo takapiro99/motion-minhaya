@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ToTopPageButton } from "../utils/toTopPageButton";
+import { ToTopPageButton } from "../utils/ToTopPageButton";
 
 // type WaitingRoomUnjoinableProps = {}
 
