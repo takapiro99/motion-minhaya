@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Game } from "../../api/src/common/models/game";
+import { Game, OnGoingGame, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
 import { ClientStatus, User } from "./domain/type";
 
 type SocketContextType = {
@@ -79,12 +79,22 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "WAITING_ROOM_JOINED") {
         console.log("WAITING_ROOM_JOINED recieved!")
-        setGame(message)
+        setGame({
+          ...game,
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+        } as WaitingParticipantsGame)
         setClientStatus("PARTICIPANTS_WAITING")
       }
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
-        setGame(message)
+        setGame({
+          ...game,
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+        } as WaitingParticipantsGame)
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
         console.log("WAITING_ROOM_UNJOINABLE recieved!")
@@ -92,12 +102,31 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "GAME_STARTED") {
         console.log("GAME_STARTED recieved!")
-        setGame(message)
+        setGame({
+          ...game,
+          status: "WAITING_PARTICIPANTS",
+          gameId: message.gameId,
+          participants: message.participants,
+        } as WaitingParticipantsGame)
         setClientStatus("GAME_STARTED")
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
-        setGame(message)
+        const addedQuiz = {
+          ...game.quizzes,
+          quizNumber: message.quizNumber,
+          motionId: message.motionId,
+          motionStartTimestamp: message.motionStartTimestamp,
+          answerFinishTimestamp: message.answerFinishTimestamp,
+        } as Quiz
+        setGame({
+          ...game, 
+          status: "ONGOING",
+          gameId: message.gameId,
+          participants: message.participants,
+          currentQuizNumberOneIndexed: message.quizNumber,
+          quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
+        } as OnGoingGame)
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
       }
     });
