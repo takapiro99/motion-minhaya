@@ -125,7 +125,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           gameId: message.gameId,
           participants: message.participants,
           currentQuizNumberOneIndexed: message.quizNumber,
-          quizzes: game.quizzes ? game.quizzes.concat(addedQuiz) : addedQuiz,
+          quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
         } as OnGoingGame)
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
       }
