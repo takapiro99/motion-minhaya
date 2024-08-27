@@ -1,7 +1,7 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Game } from "../../api/src/common/models/game";
-import { ClientStatus } from "./domain/type";
+import { ClientStatus, User } from "./domain/type";
 
 type SocketContextType = {
   socket: Socket;
@@ -9,8 +9,8 @@ type SocketContextType = {
   updateClientStatus: (clientStatus: ClientStatus) => void;
   game: Game;
   updateGame: (game: Game) => void;
-  userName: string;
-  updateUserName: (userName: string) => void;
+  user: User;
+  updateUser: (user: User) => void;
   ping: () => void;
   enterWaitingRoom: (name: string) => void;
 };
@@ -39,8 +39,12 @@ export const SocketContext = createContext<SocketContextType>({
     gameResult: null,
   },
   updateGame: () => {},
-  userName: "",
-  updateUserName: () => {},
+  user: {
+    connectionId: null,
+    clientId: null,
+    name: "",
+  },
+  updateUser: () => {},
   ping,
   enterWaitingRoom,
 });
@@ -57,7 +61,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
     quizzes: null,
     gameResult: null,
   })
-  const [userName, setUserName] = useState<string>("") // TODO: ローカルストレージに保存・取得したい
+  const [user, setUser] = useState<User>({ // TODO: ローカルストレージに保存・取得したい
+    connectionId: null,
+    clientId: null,
+    name: "",
+  })
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -113,8 +121,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         updateClientStatus: setClientStatus,
         game,
         updateGame: setGame,
-        userName,
-        updateUserName: setUserName,
+        user,
+        updateUser: setUser,
         ping,
         enterWaitingRoom
       }}

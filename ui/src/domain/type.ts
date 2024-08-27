@@ -15,3 +15,9 @@ export type QuizStatus =
   | "ANSWERING"
   | "ANSWERED"
   | "IN_RESULT"
+
+export type User = {
+  connectionId: string | null,
+  clientId: string | null,
+  name: string,
+}

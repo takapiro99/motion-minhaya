@@ -5,13 +5,17 @@ import { SocketContext } from "../../SocketContext";
 // type NameInputingProps = {}
 
 export const NameInputing: FC = () => {
-  const { updateClientStatus, userName, updateUserName, enterWaitingRoom } = useContext(SocketContext)
-  
+  const { updateClientStatus, user, updateUser, enterWaitingRoom } = useContext(SocketContext)
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    updateUserName(event.target.value)
+    updateUser({
+      ...user,
+      name: event.target.value
+    });
   }
+  
   const handleButtonClick = () => {
-    enterWaitingRoom(userName)
+    enterWaitingRoom(user.name)
     updateClientStatus("CONFIRMING_WAITING_ROOM_JOINABLE")
   }
 
@@ -19,12 +23,12 @@ export const NameInputing: FC = () => {
     <>
       <div>名前を入力してください。</div>
       <Input
-        value={userName}
+        value={user.name}
         onChange={handleInputChange}
       />
       <Button
         onClick={handleButtonClick}
-        disabled={userName === ""}
+        disabled={user.name === ""}
       >
         決定
       </Button>
