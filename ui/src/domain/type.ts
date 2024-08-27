@@ -1,6 +1,4 @@
-// export type GameStatus = "NONE" | "PARTICIPANTS_WAITING" | "GAME_ONGOING"
-
-export type GameStatus =
+export type ClientStatus =
   | "OUT_OF_GAME"
   | "NAME_INPUTING"
   | "CONFIRMING_WAITING_ROOM_JOINABLE"
