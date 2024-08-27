@@ -42,7 +42,7 @@ export const db = {
             participants: waitingGame.participants,
             quizzes: null,
             gameResult: null,
-            currentQuizNumberOneIndexed: 1,
+            currentQuizNumberOneIndexed: null,
           });
         });
       }

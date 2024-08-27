@@ -25,7 +25,7 @@ export type WaitingParticipantsGame = {
   status: "WAITING_PARTICIPANTS";
   gameId: string;
   participants: Participant[];
-  currentQuizNumberOneIndexed: 1;
+  currentQuizNumberOneIndexed: null;
   quizzes: null;
   gameResult: null;
 };

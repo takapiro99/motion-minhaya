@@ -50,7 +50,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
           name: name,
         },
       ],
-      currentQuizNumberOneIndexed: 1,
+      currentQuizNumberOneIndexed: null,
       quizzes: null,
       gameResult: null,
     };
