@@ -165,6 +165,16 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           gameResult: message.gameResult as GameResult[],
         } as OnGoingGame)
       }
+      // 動作未確認
+      if (message.event === "GAME_RESULT") {
+        console.log("GAME_RESULT recieved!")
+        setGame({
+          ...game, 
+          status: "ONGOING", // 不要な更新？
+          gameId: message.gameId as string, // 不要な更新？
+          gameResult: message.gameResult as GameResult[],
+        } as OnGoingGame)
+      }
     });
   }, []);
 

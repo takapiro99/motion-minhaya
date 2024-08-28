@@ -94,5 +94,18 @@ export const emitter = {
         });
       }
     })
+  },
+  // 動作未確認
+  gameResult: (socketIDs: string[], gameId: string, gameResult: OnGoingGame["gameResult"], io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, {
+          event: "GAME_RESULT",
+          gameId: gameId,
+          gameResult: gameResult,
+        });
+      }
+    })
   }
 };

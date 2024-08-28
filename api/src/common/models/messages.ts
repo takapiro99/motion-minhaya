@@ -97,10 +97,11 @@ export type MotionMinhayaWSServerMessage =
   | {
     event: "GAME_RESULT";
     gameId: string
-    resultByParticipants: {
-      clientId: string
-      name: string
-      gamePoint: number
-    }[]
+    // resultByParticipants: {
+    //   clientId: string
+    //   name: string
+    //   gamePoint: number
+    // }[]
+    gameResult: GameResult[] // GameResult[] を返すようにしてみた
   }
 
