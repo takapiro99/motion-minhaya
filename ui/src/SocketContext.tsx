@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Game, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
+import { Game, GameResult, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
 import { ClientStatus, User } from "./domain/type";
 
 type SocketContextType = {
@@ -145,6 +145,24 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           status: "ONGOING", // 不要な更新？
           gameId: message.gameId as string, // 不要な更新？
           quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
+        } as OnGoingGame)
+      }
+      // 動作未確認
+      if (message.event === "QUIZ_RESULT") {
+        console.log("QUIZ_RESULT recieved!")
+        const currentQuizNumber = message.quizNumber as number
+        const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
+        const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
+        const addedQuiz = {
+        ...currentQuiz,
+        guesses: message.guesses as Guess[],
+        }
+        setGame({
+          ...game, 
+          status: "ONGOING", // 不要な更新？
+          gameId: message.gameId as string, // 不要な更新？
+          quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
+          gameResult: message.gameResult as GameResult[],
         } as OnGoingGame)
       }
     });

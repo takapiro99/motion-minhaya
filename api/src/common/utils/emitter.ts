@@ -79,5 +79,20 @@ export const emitter = {
         });
       }
     })
+  },
+  // 動作未確認
+  quizResult: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], gameResult: OnGoingGame["gameResult"], io: Server) => {
+    socketIDs.forEach((socketID) => {
+      const socket = io.sockets.sockets.get(socketID);
+      if (socket) {
+        emitToSocketAck(socket, {
+          event: "QUIZ_RESULT",
+          gameId: gameId,
+          quizNumber: 1, // TODO
+          guesses: guesses,
+          gameResult: gameResult,
+        });
+      }
+    })
   }
 };

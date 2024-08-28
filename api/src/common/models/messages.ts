@@ -1,4 +1,4 @@
-import type { GameClientAction, GameServerEvent, Guess, Participant } from "./game";
+import type { GameClientAction, GameResult, GameServerEvent, Guess, Participant } from "./game";
 
 type MotionMinhayaWSClientMessageBase = {
   action: GameClientAction;
@@ -83,14 +83,16 @@ export type MotionMinhayaWSServerMessage =
     event: "QUIZ_RESULT";
     gameId: string
     quizNumber: number
-    resultByParticipants: {
-      clientId: string,
-      name: string,
-      buttonPressedTimeMs: number
-      similarityPoint: number, // 類似度点数
-      quizPoint: number // この問題で得た点数
-      gamePoint: number // ゲーム累積の点数
-    }[]
+    // resultByParticipants: {
+    //   clientId: string,
+    //   name: string,
+    //   buttonPressedTimeMs: number
+    //   similarityPoint: number, // 類似度点数
+    //   quizPoint: number // この問題で得た点数
+    //   gamePoint: number // ゲーム累積の点数
+    // }[]
+    guesses: Guess[] // Guess[] を返すようにしてみた
+    gameResult: GameResult[] // GameResult[] を返すようにしてみた
   }
   | {
     event: "GAME_RESULT";
