@@ -36,9 +36,8 @@ export type OnGoingGame = {
   participants: Participant[];
   currentQuizNumberOneIndexed: number;
   quizzes: Quiz[];
-  gameResult: (Participant & {
-    gamePoint: number;
-  })[] | null;
+  // gameResult: GameResult[] | null;
+  gameResult: GameResult[];
 };
 
 export type Game = NoneGame | WaitingParticipantsGame | OnGoingGame
@@ -50,7 +49,7 @@ export const createOngoingGame = (waitingGame: WaitingParticipantsGame): OnGoing
     participants: waitingGame.participants,
     currentQuizNumberOneIndexed: 1,
     quizzes: [],
-    gameResult: null,
+    gameResult: [],
   };
 };
 
@@ -73,4 +72,8 @@ export type Guess = Participant & {
   guess: string | null;
   similarityPoint: number; // 類似度点数
   quizPoint: number; // この問題で得た点数
+}
+
+export type GameResult = Participant & {
+  gamePoint: number;
 }
