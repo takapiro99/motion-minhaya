@@ -6,7 +6,7 @@ import { ToTopPageButton } from "../utils/ToTopPageButton";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
-  const { updateGameStatus, ping } = useContext(SocketContext);
+  const { updateClientStatus, ping } = useContext(SocketContext);
 
   return (
     <div>
@@ -14,9 +14,9 @@ export const TopPage: FC = () => {
       <div>This is a top page.</div>
       <Button
         onClick={() => {
-          updateGameStatus("NAME_INPUTING");
-          navigate("/game");
-        }}
+          updateClientStatus("NAME_INPUTING")
+          navigate("/game")}
+        }
       >
         問題を解く
       </Button>

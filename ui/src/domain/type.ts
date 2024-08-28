@@ -1,6 +1,4 @@
-// export type GameStatus = "NONE" | "PARTICIPANTS_WAITING" | "GAME_ONGOING"
-
-export type GameStatus =
+export type ClientStatus =
   | "OUT_OF_GAME"
   | "NAME_INPUTING"
   | "CONFIRMING_WAITING_ROOM_JOINABLE"
@@ -10,3 +8,16 @@ export type GameStatus =
   | "GAME_STARTED"
   | "GAME_ONGOING"
   | "GAME_FINISIED"
+
+export type QuizStatus = 
+  | "NOT_STARTED"
+  | "CAN_ANSWER"
+  | "ANSWERING"
+  | "ANSWERED"
+  | "IN_RESULT"
+
+export type User = {
+  connectionId: string | null,
+  clientId: string | null,
+  name: string,
+}

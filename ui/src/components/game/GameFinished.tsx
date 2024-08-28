@@ -6,7 +6,7 @@ import { SocketContext } from "../../SocketContext";
 // type GameFinishedProps = {}
 
 export const GameFinished: FC = () => {
-  const { updateGameStatus } = useContext(SocketContext)
+  const { updateClientStatus } = useContext(SocketContext)
   const navigate = useNavigate()
 
   return (
@@ -20,7 +20,7 @@ export const GameFinished: FC = () => {
       </ul>
       <Button
         onClick={() => {
-          updateGameStatus("OUT_OF_GAME")
+          updateClientStatus("OUT_OF_GAME")
           navigate("/")
         }}
       >
