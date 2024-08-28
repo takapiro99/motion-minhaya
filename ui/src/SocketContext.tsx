@@ -104,11 +104,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         console.log("GAME_STARTED recieved!")
         setGame({
           ...game,
-          status: "WAITING_PARTICIPANTS",
+          status: "ONGOING",
           gameId: message.gameId,
           participants: message.participants,
-        } as WaitingParticipantsGame)
-        setClientStatus("GAME_STARTED")
+        } as OnGoingGame)
+        setClientStatus("GAME_ONGOING")
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
