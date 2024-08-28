@@ -67,14 +67,15 @@ export const emitter = {
           event: "PARTICIPANTS_ANSWER_STATUS_UPDATED",
           gameId: gameId,
           quizNumber: 1, // TODO
-          participants: guesses.map((guess) => {
-            return {
-              clientId: guess.clientId,
-              name: guess.name,
-              status: guess.guess !== null ? "ANSWER_SUBMITTED" : guess.buttonPressedTimeMs ? "BUTTON_PRESSED" : "BUTTON_NOT_PRESSED",
-              buttonPressedTimeMs: guess.buttonPressedTimeMs,
-            }
-          })
+          // participants: guesses.map((guess) => {
+          //   return {
+          //     clientId: guess.clientId,
+          //     name: guess.name,
+          //     status: guess.guess !== null ? "ANSWER_SUBMITTED" : guess.buttonPressedTimeMs ? "BUTTON_PRESSED" : "BUTTON_NOT_PRESSED",
+          //     buttonPressedTimeMs: guess.buttonPressedTimeMs,
+          //   }
+          // })
+          guesses: guesses, // 動作未確認
         });
       }
     })

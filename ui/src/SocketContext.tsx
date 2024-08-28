@@ -130,6 +130,23 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         } as OnGoingGame)
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
       }
+      // 動作未確認
+      if (message.event === "PARTICIPANTS_ANSWER_STATUS_UPDATED") {
+        console.log("PARTICIPANTS_ANSWER_STATUS_UPDATED recieved!")
+        const currentQuizNumber = message.quizNumber as number
+        const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
+        const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
+        const addedQuiz = {
+          ...currentQuiz,
+          guesses: message.guesses as Guess[],
+        }
+        setGame({
+          ...game, 
+          status: "ONGOING", // 不要な更新？
+          gameId: message.gameId as string, // 不要な更新？
+          quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
+        } as OnGoingGame)
+      }
     });
   }, []);
 

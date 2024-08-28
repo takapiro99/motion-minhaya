@@ -1,4 +1,4 @@
-import type { GameClientAction, GameServerEvent, Participant } from "./game";
+import type { GameClientAction, GameServerEvent, Guess, Participant } from "./game";
 
 type MotionMinhayaWSClientMessageBase = {
   action: GameClientAction;
@@ -71,12 +71,13 @@ export type MotionMinhayaWSServerMessage =
     event: "PARTICIPANTS_ANSWER_STATUS_UPDATED"
     gameId: string
     quizNumber: number
-    participants: {
-      clientId: string
-      name: string
-      status: "BUTTON_NOT_PRESSED" | "BUTTON_PRESSED" | "ANSWER_SUBMITTED"
-      buttonPressedTimeMs: number | null
-    }[]
+    // participants: {
+    //   clientId: string
+    //   name: string
+    //   status: "BUTTON_NOT_PRESSED" | "BUTTON_PRESSED" | "ANSWER_SUBMITTED"
+    //   buttonPressedTimeMs: number | null
+    // }[]
+    guesses: Guess[] // Guess[] を返すようにしてみた
   }
   | {
     event: "QUIZ_RESULT";
