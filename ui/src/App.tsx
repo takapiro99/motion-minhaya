@@ -1,12 +1,14 @@
-import { AppRoutes } from './AppRoutes'
-import { SocketContextProvider } from './SocketContext'
+import { AppRoutes } from "./AppRoutes";
+import { SocketContextProvider } from "./SocketContext";
 
 function App() {
   return (
-    <SocketContextProvider>
-      <AppRoutes />
-    </SocketContextProvider>
-  )
+    <div style={{ height: "100%", width: "100%" }}>
+      <SocketContextProvider>
+        <AppRoutes />
+      </SocketContextProvider>
+    </div>
+  );
 }
 
-export default App
+export default App;

@@ -7,12 +7,19 @@ import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
 import { Button, TextArea } from "semantic-ui-react";
+import {
+  Preview,
+  PreviewConainer,
+  PreviewContainer,
+} from "../createQuiz/Preview";
 
 type PoseDetector = poseDetection.PoseDetector;
 const supportedModels = poseDetection.SupportedModels;
 const createDetector = poseDetection.createDetector;
 
 const RECORD_SECONDS = 10;
+
+export type CreateQuizMode = "WITHCAMERA" | "GALAXY";
 
 export const CreateQuizPage: FC = () => {
   const webcamRef = useRef<Webcam>(null);
@@ -23,6 +30,7 @@ export const CreateQuizPage: FC = () => {
   const [remainingSeconds, setRemainingSeconds] =
     useState<number>(RECORD_SECONDS);
   const [record, setRecord] = useState<poseDetection.Pose["keypoints3D"][]>([]);
+  const [mode, setMode] = useState<CreateQuizMode>("GALAXY");
 
   const startRecording = () => {
     setRecording(true);
@@ -52,24 +60,22 @@ export const CreateQuizPage: FC = () => {
         const poses = await detector.estimatePoses(video, {
           flipHorizontal: false,
         });
-        if (recording) {
-          if (poses.length > 0) {
-            setRecord((prev) => [...prev, poses[0].keypoints3D]);
-          }
+        if (recording && poses.length > 0) {
+          setRecord((prev) => [...prev, poses[0].keypoints3D]);
         }
         // renderResult
         if (
           webcamRef.current?.video !== null &&
           webcamRef.current?.video !== undefined
         ) {
-          rendererRef?.current?.draw(webcamRef.current?.video, poses);
+          rendererRef?.current?.draw(webcamRef.current?.video, poses, mode);
         }
       } catch (error) {
         detector.dispose();
         alert(error);
       }
     }
-  }, [detector, recording]);
+  }, [detector, recording, mode]);
 
   useEffect(() => {
     estimatePoses();
@@ -195,6 +201,25 @@ export const CreateQuizPage: FC = () => {
         >
           リセット
         </Button>
+        <Button
+          secondary
+          type="button"
+          onClick={() => {
+            setMode(mode === "WITHCAMERA" ? "GALAXY" : "WITHCAMERA");
+          }}
+        >
+          モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
+        </Button>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
+        <PreviewContainer />
       </div>
     </div>
   );
