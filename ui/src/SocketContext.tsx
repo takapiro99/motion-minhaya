@@ -115,11 +115,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
         const addedQuiz = {
-          ...game.quizzes,
           quizNumber: message.quizNumber,
           motionId: message.motionId,
           motionStartTimestamp: message.motionStartTimestamp,
           answerFinishTimestamp: message.answerFinishTimestamp,
+          guesses: [],
         } as Quiz
         setGame({
           ...game, 
