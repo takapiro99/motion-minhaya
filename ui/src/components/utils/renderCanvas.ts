@@ -18,6 +18,7 @@ import * as posedetection from '@tensorflow-models/pose-detection';
 // import * as scatter from 'scatter-gl';
 
 import * as params from './params';
+import { CreateQuizMode } from '../page/CreateQuizPage';
 
 
 // #ffffff - White
@@ -65,25 +66,22 @@ export class RendererCanvas2d {
     this.ctx?.scale(-1, 1);
   }
 
-  draw(video: HTMLVideoElement, poses: posedetection.Pose[]) {
-    // this.drawCtx(video);
+  draw(video: HTMLVideoElement, poses: posedetection.Pose[], mode: CreateQuizMode) {
     if (this.ctx == null) return
-
-    this.clearCtx()
-    this.ctx.fillStyle = 'Black';
-    this.ctx?.fillRect(0, 0, this.videoWidth, this.videoHeight);
+    if (mode === "WITHCAMERA") {
+      this.ctx?.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
+    }
+    if (mode === "GALAXY") {
+      this.clearCtx()
+      this.ctx.fillStyle = 'Black';
+      this.ctx?.fillRect(0, 0, this.videoWidth, this.videoHeight);
+    }
     // The null check makes sure the UI is not in the middle of changing to a
     // different model. If during model change, the result is from an old model,
     // which shouldn't be rendered.
     if (poses && poses.length > 0) {
-      this.drawResults(poses);
+      this.drawResults(poses, mode);
     }
-  }
-
-  drawCtx(video: HTMLVideoElement) {
-    // this.ctx?.drawImage(video, 0, 0, this.videoWidth, this.videoHeight);
-    this.ctx.fillStyle = 'Black';
-    this.ctx?.fillRect(0, 0, this.videoWidth, this.videoHeight);
   }
 
   clearCtx() {
@@ -94,9 +92,9 @@ export class RendererCanvas2d {
    * Draw the keypoints and skeleton on the video.
    * @param poses A list of poses to render.
    */
-  drawResults(poses: posedetection.Pose[]) {
+  drawResults(poses: posedetection.Pose[], mode: CreateQuizMode) {
     for (const pose of poses) {
-      this.drawResult(pose);
+      this.drawResult(pose, mode);
     }
   }
 
@@ -104,10 +102,12 @@ export class RendererCanvas2d {
    * Draw the keypoints and skeleton on the video.
    * @param pose A pose with keypoints to render.
    */
-  drawResult(pose: posedetection.Pose) {
+  drawResult(pose: posedetection.Pose, mode: CreateQuizMode) {
     if (pose.keypoints != null) {
-      this.drawKeypoints(pose.keypoints);
-      // this.drawSkeleton(pose.keypoints, pose.id);
+      this.drawKeypoints(pose.keypoints, mode);
+      if (mode === "WITHCAMERA") {
+        this.drawSkeleton(pose.keypoints, pose.id);
+      }
     }
   }
 
@@ -115,20 +115,18 @@ export class RendererCanvas2d {
    * Draw the keypoints on the video.
    * @param keypoints A list of keypoints.
    */
-  drawKeypoints(keypoints: posedetection.Keypoint[]) {
+  drawKeypoints(keypoints: posedetection.Keypoint[], mode: CreateQuizMode) {
     if (this.ctx == null) return
     const keypointInd =
       posedetection.util.getKeypointIndexBySide(posedetection.SupportedModels.BlazePose);
     this.ctx.fillStyle = 'Red';
     this.ctx.strokeStyle = 'White';
-    // this.ctx.strokeStyle = 'black';
     this.ctx.lineWidth = params.DEFAULT_LINE_WIDTH;
 
-    const writeOnly = [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]
+    const writeOnly = mode === "GALAXY" ? [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28] : [...Array(50)].map((_, i) => i)
 
     for (const i of keypointInd.middle) {
       if (writeOnly.includes(i)) {
-
         this.drawKeypoint(keypoints[i]);
       }
 
