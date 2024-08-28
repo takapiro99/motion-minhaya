@@ -91,7 +91,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         console.log("WAITING_ROOM_UPDATED recieved!")
         setGame({
           ...game,
-          status: "WAITING_PARTICIPANTS",
+          // status: "WAITING_PARTICIPANTS", // 不要な更新
           gameId: message.gameId,
           participants: message.participants,
         } as WaitingParticipantsGame)
@@ -123,7 +123,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         } as Quiz
         setGame({
           ...game, 
-          status: "ONGOING",
+          // status: "ONGOING", // 不要な更新
           gameId: message.gameId,
           participants: message.participants,
           currentQuizNumberOneIndexed: message.quizNumber,
