@@ -52,9 +52,9 @@ export const emitter = {
           event: "QUIZ_STARTED",
           gameId: gameId,
           quizNumber: quiz?.quizNumber,
-          motionId: quiz.motionId,
-          motionStartTimestamp: quiz.motionStartTimestamp.toString(),
-          answerFinishTimestamp: quiz.answerFinishTimestamp.toString(),
+          motionId: quiz?.motionId,
+          motionStartTimestamp: quiz?.motionStartTimestamp.toString(),
+          answerFinishTimestamp: quiz?.answerFinishTimestamp.toString(),
         });
       }
     })
