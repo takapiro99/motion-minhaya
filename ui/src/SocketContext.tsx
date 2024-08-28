@@ -107,6 +107,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           status: "ONGOING",
           gameId: message.gameId,
           participants: message.participants,
+          currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
+          quizzes: [],
         } as OnGoingGame)
         setClientStatus("GAME_ONGOING")
       }
