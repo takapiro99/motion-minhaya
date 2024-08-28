@@ -154,8 +154,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
         const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
         const addedQuiz = {
-        ...currentQuiz,
-        guesses: message.guesses as Guess[],
+          ...currentQuiz,
+          guesses: message.guesses as Guess[],
         }
         setGame({
           ...game, 
