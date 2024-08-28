@@ -59,12 +59,7 @@ export type Quiz = {
   motionId: string;
   motionStartTimestamp: number; // unix timestamp
   answerFinishTimestamp: number; // unix timestamp
-  guesses: (Participant & {
-    buttonPressedTimeMs: number;
-    guess: string | null;
-    similarityPoint: number; // 類似度点数
-    quizPoint: number; // この問題で得た点数
-  })[];
+  guesses: Guess[];
 };
 
 export type Participant = {
@@ -72,3 +67,10 @@ export type Participant = {
   clientId: string;
   name: string;
 };
+
+export type Guess = Participant & {
+  buttonPressedTimeMs: number;
+  guess: string | null;
+  similarityPoint: number; // 類似度点数
+  quizPoint: number; // この問題で得た点数
+}
