@@ -92,7 +92,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame({
           ...game,
           // status: "WAITING_PARTICIPANTS", // 不要な更新
-          gameId: message.gameId,
+          // gameId: message.gameId, // 不要な更新
           participants: message.participants,
         } as WaitingParticipantsGame)
       }
@@ -105,7 +105,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame({
           ...game,
           status: "ONGOING",
-          gameId: message.gameId,
+          // gameId: message.gameId, // 不要な更新
           participants: message.participants,
           currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
           quizzes: [],
@@ -124,8 +124,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame({
           ...game, 
           // status: "ONGOING", // 不要な更新
-          gameId: message.gameId,
-          participants: message.participants,
+          // gameId: message.gameId, // 不要な更新
           currentQuizNumberOneIndexed: message.quizNumber,
           quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
         } as OnGoingGame)
