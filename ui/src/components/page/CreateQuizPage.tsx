@@ -101,8 +101,8 @@ export const CreateQuizPage: FC = () => {
       try {
         const detector = await createDetector(model, {
           runtime: "mediapipe",
-          modelType: "lite",
-          // modelType: "heavy",
+          // modelType: "lite",
+          modelType: "heavy",
           solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/pose",
           // solutionPath: "node_modules/@mediapipe/pose",
         });
