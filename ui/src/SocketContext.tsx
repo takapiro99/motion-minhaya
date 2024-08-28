@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { Game, OnGoingGame, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
+import { Game, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
 import { ClientStatus, User } from "./domain/type";
 
 type SocketContextType = {
@@ -82,8 +82,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame({
           ...game,
           status: "WAITING_PARTICIPANTS",
-          gameId: message.gameId,
-          participants: message.participants,
+          gameId: message.gameId as string,
+          participants: message.participants as Participant[],
         } as WaitingParticipantsGame)
         setClientStatus("PARTICIPANTS_WAITING")
       }
@@ -91,9 +91,9 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         console.log("WAITING_ROOM_UPDATED recieved!")
         setGame({
           ...game,
-          // status: "WAITING_PARTICIPANTS", // 不要な更新
-          // gameId: message.gameId, // 不要な更新
-          participants: message.participants,
+          status: "WAITING_PARTICIPANTS", // 不要な更新？
+          gameId: message.gameId as string, // 不要な更新？
+          participants: message.participants as Participant[],
         } as WaitingParticipantsGame)
       }
       if (message.event === "WAITING_ROOM_UNJOINABLE") {
@@ -105,27 +105,27 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         setGame({
           ...game,
           status: "ONGOING",
-          // gameId: message.gameId, // 不要な更新
-          participants: message.participants,
+          gameId: message.gameId as string, // 不要な更新？
+          participants: message.participants as Participant[],
           currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
-          quizzes: [],
+          quizzes: [] as Quiz[],
         } as OnGoingGame)
         setClientStatus("GAME_ONGOING")
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
         const addedQuiz = {
-          quizNumber: message.quizNumber,
-          motionId: message.motionId,
-          motionStartTimestamp: message.motionStartTimestamp,
-          answerFinishTimestamp: message.answerFinishTimestamp,
-          guesses: [],
+          quizNumber: message.quizNumber as number,
+          motionId: message.motionId as string,
+          motionStartTimestamp: message.motionStartTimestamp as number,
+          answerFinishTimestamp: message.answerFinishTimestamp as number,
+          guesses: [] as Guess[],
         } as Quiz
         setGame({
           ...game, 
-          // status: "ONGOING", // 不要な更新
-          // gameId: message.gameId, // 不要な更新
-          currentQuizNumberOneIndexed: message.quizNumber,
+          status: "ONGOING", // 不要な更新？
+          gameId: message.gameId as string, // 不要な更新？
+          currentQuizNumberOneIndexed: message.quizNumber as number,
           quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
         } as OnGoingGame)
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
