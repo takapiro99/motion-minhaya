@@ -25,7 +25,10 @@ export type MotionMinhayaWSClientMessage =
   }
   | {
     action: "GUESS_ANSWER";
-    answer: string;
+    clientId: string,
+    gameId: string,
+    quizNumber: number,
+    guess: string,
   };
 
 type MotionMinhayaWSServerMessageBase = {
