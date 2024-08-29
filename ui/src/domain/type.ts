@@ -28,3 +28,10 @@ export type ButtonPressedProps = {
   clientId: string,
   buttonPressedTimestamp: number,
 }
+
+export type GuessAnswerProps = {
+  clientId: string,
+  gameId: string,
+  quizNumber: number,
+  guess: string,
+}
