@@ -12,12 +12,14 @@ import {
   PreviewConainer,
   PreviewContainer,
 } from "../createQuiz/Preview";
+import { localStorage } from "../utils/storage";
 
 type PoseDetector = poseDetection.PoseDetector;
 const supportedModels = poseDetection.SupportedModels;
 const createDetector = poseDetection.createDetector;
 
 const RECORD_SECONDS = 10;
+const MODEL_TYPE: "lite" | "heavy" = "heavy";
 
 export type CreateQuizMode = "WITHCAMERA" | "GALAXY";
 
@@ -29,8 +31,11 @@ export const CreateQuizPage: FC = () => {
   const [recording, setRecording] = useState<boolean>(false);
   const [remainingSeconds, setRemainingSeconds] =
     useState<number>(RECORD_SECONDS);
-  const [record, setRecord] = useState<poseDetection.Pose["keypoints3D"][]>([]);
+  const [record, setRecord] = useState<poseDetection.Pose[]>([]);
   const [mode, setMode] = useState<CreateQuizMode>("GALAXY");
+  const [currentPose, setCurrentPose] = useState<
+    poseDetection.Pose["keypoints3D"] | null
+  >(null);
 
   const startRecording = () => {
     setRecording(true);
@@ -49,6 +54,7 @@ export const CreateQuizPage: FC = () => {
     }, 1000);
   };
 
+  // estimate, render, and maybe save
   const estimatePoses = useCallback(async () => {
     if (
       webcamRef.current !== null &&
@@ -60,8 +66,12 @@ export const CreateQuizPage: FC = () => {
         const poses = await detector.estimatePoses(video, {
           flipHorizontal: false,
         });
-        if (recording && poses.length > 0) {
-          setRecord((prev) => [...prev, poses[0].keypoints3D]);
+        // logEstimation(poses[0].keypoints3D, 11, "z");
+        if (poses.length > 0) {
+          setCurrentPose(poses[0].keypoints3D);
+          if (recording) setRecord((prev) => [...prev, poses[0]]);
+        } else {
+          setCurrentPose(null);
         }
         // renderResult
         if (
@@ -83,11 +93,11 @@ export const CreateQuizPage: FC = () => {
     return () => clearInterval(interval);
   }, [detector, estimatePoses]);
 
+  // setup
   useEffect(() => {
     console.log("initialize models");
     const loadModel = async () => {
       const model = supportedModels.BlazePose;
-      console.log("blazepose selected");
       if (webcamRef.current && webcamRef.current.video && canvasRef.current) {
         if (webcamRef.current.video.readyState < 2) {
           await new Promise((resolve) => {
@@ -97,18 +107,15 @@ export const CreateQuizPage: FC = () => {
               };
           });
         }
-        canvasRef.current.width =
-          webcamRef.current.video.getBoundingClientRect().width;
-        canvasRef.current.height =
-          webcamRef.current.video.getBoundingClientRect().height;
+        const vid = webcamRef.current.video;
+        canvasRef.current.width = vid.getBoundingClientRect().width;
+        canvasRef.current.height = vid.getBoundingClientRect().height;
         rendererRef.current = new RendererCanvas2d(canvasRef.current);
-        console.log("canvas initialized");
       }
       try {
         const detector = await createDetector(model, {
           runtime: "mediapipe",
-          // modelType: "lite",
-          modelType: "heavy",
+          modelType: MODEL_TYPE,
           solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/pose",
           // solutionPath: "node_modules/@mediapipe/pose",
         });
@@ -130,6 +137,12 @@ export const CreateQuizPage: FC = () => {
       }
     }
   }, []);
+
+  const saveLocalStorage = () => {
+    if (record.length === 0) return;
+    const key = `quiz_${new Date().getTime()}`;
+    localStorage.setItem(key, JSON.stringify(record));
+  };
 
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
@@ -187,6 +200,14 @@ export const CreateQuizPage: FC = () => {
         >
           正解ともに保存(TODO)
         </Button>
+        <Button
+          primary
+          type="button"
+          onClick={saveLocalStorage}
+          disabled={record.length === 0 || recording}
+        >
+          LocalStorageに保存
+        </Button>
         <TextArea
           disabled={record.length === 0 || recording}
           placeholder="正答を入力"
@@ -210,6 +231,18 @@ export const CreateQuizPage: FC = () => {
         >
           モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
         </Button>
+        <Button
+          secondary
+          type="button"
+          onClick={() => {
+            const data = JSON.parse(
+              localStorage.getItem("quiz_1724949291809") ?? "[]"
+            ) as poseDetection.Pose[];
+            console.log(data.map((d) => d?.keypoints3D[11].z));
+          }}
+        >
+          log
+        </Button>
       </div>
       <div
         style={{
@@ -219,8 +252,55 @@ export const CreateQuizPage: FC = () => {
           transform: "translateX(-50%)",
         }}
       >
-        <PreviewContainer />
+        <PreviewContainer currentPose={currentPose} />
       </div>
     </div>
   );
+};
+
+// Bone name: _rootJoint
+// root_01
+// spine_01_02
+// pelvis_03
+// thighL_04
+// shinL_05
+// footL_06
+// toeL_07
+// thighR_08
+// shinR_09
+// footR_010
+// toeR_011
+// spine_02_012
+// spine_03_013
+// head_014
+// shoulderL_015
+// upper_armL_016
+// forearmL_017
+// handL_018
+// fingersL_019
+// thumb_01L_020
+// thumb_02L_021
+// shoulderR_022
+// upper_armR_023
+// forearmR_00
+// handR_024
+// fingersR_025
+// thumb_01R_026
+// thumb_02R_027
+// TAR_kneeL_028
+// IK_handL_029
+// IK_footL_030
+// TAR_elbowL_031
+// TAR_kneeR_032
+// IK_handR_033
+// IK_footR_034
+// TAR_elbowR_035
+
+const logEstimation = (
+  pose: poseDetection.Pose["keypoints3D"],
+  num: number,
+  xyz: "x" | "y" | "z"
+) => {
+  if (!pose) return;
+  console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
 };
