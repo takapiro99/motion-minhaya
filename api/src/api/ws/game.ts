@@ -108,7 +108,7 @@ const startQuiz1 = (gameId: string, io: Server) => {
   emitter.emitQuizStarted(
     getSocketIDsFromParticipants(ongoingGame.participants),
     latestOngoingGame.gameId,
-    latestOngoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1],
+    latestOngoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed],
     io
   );
 };

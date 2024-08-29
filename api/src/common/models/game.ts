@@ -47,7 +47,7 @@ export const createOngoingGame = (waitingGame: WaitingParticipantsGame): OnGoing
     status: "ONGOING",
     gameId: waitingGame.gameId,
     participants: waitingGame.participants,
-    currentQuizNumberOneIndexed: 1,
+    currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
     quizzes: [],
     gameResult: [],
   };
