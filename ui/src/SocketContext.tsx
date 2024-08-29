@@ -79,13 +79,21 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "WAITING_ROOM_JOINED") {
         console.log("WAITING_ROOM_JOINED recieved!")
+        const participants = message.participants as Participant[]
+        const myClientId = message.clientId as string
+        const myConnectionId = participants.find((participant) => participant.clientId === myClientId)?.connectionId ?? null
         setGame({
           ...game,
           status: "WAITING_PARTICIPANTS",
           gameId: message.gameId as string,
-          participants: message.participants as Participant[],
+          participants: participants,
         } as WaitingParticipantsGame)
         setClientStatus("PARTICIPANTS_WAITING")
+        setUser({
+          ...user,
+          connectionId: myConnectionId,
+          clientId: myClientId,
+        })
       }
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
@@ -187,6 +195,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
   useEffect(() => {
     console.log("game:", game)
   }, [game])
+
+  // user の状態確認用
+  useEffect(() => {
+    console.log("user:", user)
+  }, [user])
 
   return (
     <SocketContext.Provider
