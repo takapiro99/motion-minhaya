@@ -1,7 +1,7 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Game, GameResult, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
-import { ClientStatus, User } from "./domain/type";
+import { ButtonPressedProps, ClientStatus, User } from "./domain/type";
 
 type SocketContextType = {
   socket: Socket;
@@ -13,6 +13,7 @@ type SocketContextType = {
   updateUser: (user: User) => void;
   ping: () => void;
   enterWaitingRoom: (name: string) => void;
+  buttonPressed: (buttonPressedProps: ButtonPressedProps) => void;
 };
 
 const socket = io(import.meta.env.SERVER_ORIGIN ?? "localhost:8080");
@@ -23,6 +24,21 @@ const enterWaitingRoom = (name: string) => {
   socket.emit("game", {
     "action": "ENTER_WAITING_ROOM", 
     "name": name,
+  })
+}
+
+const buttonPressed = ({
+  gameId,
+  quizNumber,
+  clientId,
+  buttonPressedTimestamp,
+}: ButtonPressedProps) => {
+  socket.emit("game", {
+    "action": "BUTTON_PRESSED",
+		"gameId": gameId,
+		"quizNumber": quizNumber,
+		"clientId": clientId,
+		"buttonPressedTimestamp": buttonPressedTimestamp,
   })
 }
 
@@ -47,6 +63,7 @@ export const SocketContext = createContext<SocketContextType>({
   updateUser: () => {},
   ping,
   enterWaitingRoom,
+  buttonPressed,
 });
 
 export const SocketContextProvider: FC<{ children: ReactNode }> = ({
@@ -199,7 +216,8 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         user,
         updateUser: setUser,
         ping,
-        enterWaitingRoom
+        enterWaitingRoom,
+        buttonPressed,
       }}
     >
       {children}
