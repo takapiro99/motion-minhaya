@@ -1,5 +1,5 @@
 import { constants } from "@/common/constants";
-import { Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
+import { OnGoingGame, Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
@@ -104,10 +104,11 @@ const startQuiz1 = (gameId: string, io: Server) => {
     ...ongoingGame,
     quizzes: ongoingGame.quizzes.concat(getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)),
   });
+  const latestOngoingGame = db.game.getGame(gameId) as OnGoingGame // updateOngoingGame しても ongoingGame は更新されないので再取得する
   emitter.emitQuizStarted(
     getSocketIDsFromParticipants(ongoingGame.participants),
-    ongoingGame.gameId,
-    ongoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1],
+    latestOngoingGame.gameId,
+    latestOngoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed],
     io
   );
 };
