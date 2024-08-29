@@ -8,7 +8,7 @@ import { useCountdown } from "../../hooks/useCountdown";
 
 // 動作未検証
 export const GameOngoing: FC = () => {
-  const { game, updateClientStatus } = useContext(SocketContext)
+  const { game, updateClientStatus, user, buttonPressed } = useContext(SocketContext)
   const currentQuiz = game.quizzes ? game.quizzes[game.currentQuizNumberOneIndexed - 1] : null
   const { quizStatus, updateQuizStatus } = useQuizStatus({ // leftTime を渡した方が綺麗かも
     motionStartTimestamp: currentQuiz?.motionStartTimestamp ?? null,
@@ -20,6 +20,12 @@ export const GameOngoing: FC = () => {
 
   const handleAnswerButtonClick = () => {
     updateQuizStatus("ANSWERING")
+    buttonPressed({
+      gameId: game.gameId as string,
+      quizNumber: game.currentQuizNumberOneIndexed as number,
+      clientId: user.clientId as string,
+      buttonPressedTimestamp: Date.now(),
+    })
   }
 
   const handleSubmitButtonClick = () => {

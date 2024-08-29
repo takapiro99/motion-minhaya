@@ -1,5 +1,5 @@
 import { constants } from "@/common/constants";
-import { OnGoingGame, Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
+import { Guess, OnGoingGame, Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
@@ -18,7 +18,13 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, 
     case "ENTER_WAITING_ROOM":
       return handleEnterWaitingRoom(socket, body.name, io);
     case "BUTTON_PRESSED":
-      return handleButtonPressed(socket);
+      return handleButtonPressed({
+        // socket,
+        gameId: body.gameId,
+        quizNumber: body.quizNumber,
+        clientId: body.clientId,
+        buttonPressedTimestamp: body.buttonPressedTimestamp,
+      });
     case "GUESS_ANSWER":
       return handleGuessAnswer(socket, body.answer);
     default:
@@ -88,8 +94,42 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
   }
 };
 
-const handleButtonPressed = (socket: Socket) => {
-  // TODO
+type handleButtonPressedProps = {
+  // socket: Socket,
+  gameId: string,
+  quizNumber: number,
+  clientId: string,
+  buttonPressedTimestamp: number,
+}
+
+const handleButtonPressed = ({
+  // socket,
+  gameId,
+  quizNumber,
+  clientId,
+  buttonPressedTimestamp,
+}: handleButtonPressedProps) => {
+  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
+  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
+  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
+  db.game.updateOngoingGame({
+    ...ongoingGame,
+    quizzes: [
+      ...ongoingGame.quizzes,
+      {
+        ...ongoingQuiz,
+        guesses: [
+          ...ongoingQuiz.guesses,
+          {
+            ...targetGuess,
+            buttonPressedTimeMs: buttonPressedTimestamp,
+          } as Guess,
+        ] as Guess[],
+      } as Quiz,
+    ] as Quiz[],
+  } as OnGoingGame)
+  const updatedOngoingGame = db.game.getGame(gameId)
+  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
 };
 
 const handleGuessAnswer = (socket: Socket, answer: string) => {
