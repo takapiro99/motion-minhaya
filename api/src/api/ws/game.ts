@@ -26,7 +26,13 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, 
         buttonPressedTimestamp: body.buttonPressedTimestamp,
       });
     case "GUESS_ANSWER":
-      return handleGuessAnswer(socket, body.answer);
+      return handleGuessAnswer({
+        // socket,
+        gameId: body.gameId,
+        quizNumber: body.quizNumber,
+        clientId: body.clientId,
+        guess: body.guess,
+      });
     default:
       return body satisfies never;
   }
@@ -132,8 +138,42 @@ const handleButtonPressed = ({
   console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
 };
 
-const handleGuessAnswer = (socket: Socket, answer: string) => {
-  // TODO
+type handleGuessAnswerProps = {
+  // socket: Socket,
+  clientId: string,
+  gameId: string,
+  quizNumber: number,
+  guess: string,
+}
+
+const handleGuessAnswer = ({
+  // socket,
+  clientId,
+  gameId,
+  quizNumber,
+  guess,
+}: handleGuessAnswerProps) => {
+  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
+  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
+  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
+  db.game.updateOngoingGame({
+    ...ongoingGame,
+    quizzes: [
+      ...ongoingGame.quizzes,
+      {
+        ...ongoingQuiz,
+        guesses: [
+          ...ongoingQuiz.guesses,
+          {
+            ...targetGuess,
+            guess: guess,
+          } as Guess,
+        ] as Guess[],
+      } as Quiz,
+    ] as Quiz[],
+  } as OnGoingGame)
+  const updatedOngoingGame = db.game.getGame(gameId)
+  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
