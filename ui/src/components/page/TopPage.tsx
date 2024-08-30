@@ -7,16 +7,16 @@ import { TopPagePreview } from "../createQuiz/TopPagePreview";
 import LogoImage from "../../../public/logo.png";
 import ParticleSettings from "../../../public/particles.json?url";
 import useSound from "use-sound";
+import MainBGM from "../../../public/music/topPageAndStartGameResult.mp3";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play] = useSound(
-    "../../../public/music/topPageAndStartGameResult.mp3",
-    { volume: 0, loop: true },
-  )
-  useEffect(() => { play() }, [play])
+  const [play] = useSound(MainBGM, { volume: 0, loop: true });
+  useEffect(() => {
+    play();
+  }, [play]);
 
   useLayoutEffect(() => {
     /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
