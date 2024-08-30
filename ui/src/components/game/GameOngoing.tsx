@@ -1,5 +1,5 @@
-import { ChangeEvent, FC, useContext, useState } from "react";
-import { Button, Input } from "semantic-ui-react";
+import { FC, useContext } from "react";
+import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
 import { useQuizStatus } from "../../hooks/useQuizStatus";
 import { useCountdown } from "../../hooks/useCountdown";

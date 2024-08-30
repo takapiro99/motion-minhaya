@@ -12,6 +12,7 @@ export const GameAnswering: React.FC<{
   const [open, setOpen] = useState(true);
   const [input, setInput] = useState("");
   const { game } = useContext(SocketContext);
+  console.log(quizNum);
 
   return (
     <div
