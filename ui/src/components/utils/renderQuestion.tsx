@@ -105,12 +105,15 @@ export class RendererQuestionToCanvas2d {
     const hScale = this.canvasHeight / poseYMax;
     const scale = Math.min(wScale, hScale);
     console.log(poseXMax, poseYMax, this.canvasHeight, this.canvasWidth, scale);
+    const centerizeOffsetX = (this.canvasWidth - poseXMax * scale) / 2;
+    const centerizeOffsetY = (this.canvasHeight - poseYMax * scale) / 2;
+
     this.normalizedPose = this.quizInfo.pose.map((pose) => {
       return {
         keypoints: pose.keypoints.map((kp) => {
           return {
-            x: kp.x * scale,
-            y: kp.y * scale,
+            x: kp.x * scale + centerizeOffsetX,
+            y: kp.y * scale + centerizeOffsetY,
             score: kp.score,
           };
         }),
