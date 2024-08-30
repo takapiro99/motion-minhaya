@@ -8,6 +8,7 @@ const useStyles = createUseStyles({
     justifyContent: "center",
     height: "100%",
     width: "100%",
+    background: "#111",
   },
   appChild: {
     maxWidth: "680px",
