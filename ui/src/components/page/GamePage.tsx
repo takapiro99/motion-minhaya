@@ -1,4 +1,4 @@
-import { FC, useContext, useLayoutEffect } from "react";
+import { FC, useContext } from "react";
 import { NameInputing } from "../game/NameInputing";
 import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable";
 import { ParticipantsWaiting } from "../game/ParticipantsWaiting";
