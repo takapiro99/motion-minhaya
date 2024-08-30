@@ -20,8 +20,6 @@ export const TopPage: FC = () => {
     });
   }, []);
 
-  console.log(import.meta.env.BASE_URL);
-
   return (
     <div
       style={{
