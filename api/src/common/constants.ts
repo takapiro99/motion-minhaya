@@ -13,7 +13,7 @@ export const constants = {
   ANSWERS_GATHERING_TO_QUIZ_RESULT_MS: 2 * 1000,
 
   // 結果発表から次のクイズまで
-  QUIZ_RESULT_TO_NEXT_QUIZ_MS: 10 * 1000,
+  QUIZ_RESULT_TO_NEXT_QUIZ_MS: 7 * 1000,
 
-  NUMBER_OF_QUIZZES: 2,
+  NUMBER_OF_QUIZZES: 1,
 };

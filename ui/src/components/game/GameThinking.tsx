@@ -101,7 +101,7 @@ export const GameThinking: React.FC<{
         onClose={() => setOpen(false)}
         onOpen={() => setOpen(true)}
         open={open}
-        style={{ width: "50%" }}
+        style={{ width: "80%" }}
       >
         <ModalHeader style={{ textAlign: "center", fontSize: "3rem" }}>
           第{quizNum}問

@@ -26,16 +26,16 @@ const useStyles = createUseStyles({
   gamePoint: {
     width: "30%",
   },
-})
+});
 
 export const GameResult: FC = () => {
-  const classes = useStyles()
-  const { game } = useContext(SocketContext)
-  const sortedGameResult = 
-    game.status === "ONGOING" 
+  const classes = useStyles();
+  const { game } = useContext(SocketContext);
+  const sortedGameResult =
+    game.status === "ONGOING"
       ? game.gameResult.sort((a, b) => b.gamePoint - a.gamePoint)
-      : []
-  
+      : [];
+
   // css 確認用
   // const exampleGame = [
   //   { name: "aa", gamePoint: 300},
@@ -44,19 +44,22 @@ export const GameResult: FC = () => {
   //   { name: "dd", gamePoint: 200},
   // ]
   // const sortedExampleGameResult = exampleGame.sort((a, b) => b.gamePoint - a.gamePoint)
-  
+
   return (
     <div className={classes.results}>
-       {sortedGameResult.map((result, index) => {
-       {/* {sortedExampleGameResult.map((result, index) => { */} // css 確認用
+      aa
+      {sortedGameResult.map((result, index) => {
+        {
+          /* {sortedExampleGameResult.map((result, index) => { */
+        } // css 確認用
         return (
           <div className={classes.result}>
             <p className={classes.rank}>{index + 1}位</p>
             <p className={classes.name}>{result.name}</p>
             <p className={classes.gamePoint}>{result.gamePoint}</p>
           </div>
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};

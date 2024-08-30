@@ -266,6 +266,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           gameId: message.gameId, // 不要な更新？
           gameResult: message.gameResult,
         });
+        setClientStatus("GAME_FINISIED");
       }
     });
     return () => {
