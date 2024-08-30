@@ -2,23 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { Canvas, ThreeElements, useFrame } from "@react-three/fiber";
 import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import {
-  Stats,
-  OrbitControls,
-  Environment,
-  Sphere,
-  useEnvironment,
-} from "@react-three/drei";
+import { useEnvironment } from "@react-three/drei";
 import * as poseDetection from "@tensorflow-models/pose-detection";
-import { Object3D } from "three";
-import { getManipulation } from "../utils/modelManipulation";
+import { Bone, Object3D, Quaternion, Vector3, Vector3Like } from "three";
+import { Coord } from "../utils/modelManipulation";
 
 export const PreviewContainer: React.FC<{
   currentPose: poseDetection.Pose["keypoints3D"] | null;
 }> = ({ currentPose }) => {
   return (
     <div style={{ border: "2px solid green", width: "700px", height: "700px" }}>
-      <Canvas style={{ background: "#001122" }}>
+      <Canvas
+        style={{ background: "#001122" }}
+        camera={{ position: [0, 2.4, 1.5] }}
+      >
         <Preview currentPose={currentPose} />
       </Canvas>
     </div>
@@ -30,22 +27,9 @@ export const Preview: React.FC<{
 }> = ({ currentPose }) => {
   const gltf = useLoader(GLTFLoader, "/gltf/scene.gltf");
   const modelRef = useRef<ThreeElements["primitive"]>(null);
-  const angleRef = useRef(0);
-  const directionRef = useRef(1);
 
-  // useEffect(() => {
-  //   if (modelRef.current) {
-  //     // モデル内を探索してボーンの名前をコンソールに出力
-  //     modelRef.current.traverse((object) => {
-  //       if (object.isBone) {
-  //         console.log("Bone name:", object.name);
-  //       }
-  //     });
-  //   }
-  // }, [gltf]);
-
-  const getBone = (num: number): Object3D => {
-    if (!modelRef.current) return {} as Object3D;
+  const getBone = (num: number): Bone => {
+    if (!modelRef.current) return {} as Bone;
     const names = [
       "_rootJoint",
       "root_01",
@@ -88,28 +72,59 @@ export const Preview: React.FC<{
     return modelRef.current.getObjectByName(names[num]);
   };
 
-  function orgRound(value: number, base: number) {
-    return Math.round(value * base) / base;
+  const getCurrentPose = (num: number) => {
+    type Ret = {
+      x: number;
+      y: number;
+      z: number;
+      score?: number;
+      name?: string;
+    };
+    if (!currentPose) return {} as Ret;
+    return currentPose[num] as Ret;
+  };
+
+  // 2つの関節位置からボーンの回転を計算する関数
+  function calculateBoneRotation(
+    startPoint: Vector3Like,
+    endPoint: Vector3Like,
+  ) {
+    const direction = new Vector3()
+      .subVectors(endPoint, startPoint)
+      .normalize();
+    const quaternion = new Quaternion().setFromUnitVectors(
+      new Vector3(-1, 0, 0),
+      direction,
+    );
+    return quaternion;
   }
 
   useFrame((state, delta) => {
+    // https://threejs.org/docs/#api/en/core/Object3D
     if (modelRef.current) {
-      // https://threejs.org/docs/#api/en/core/Object3D
+      // console.log(getBone(12));
 
-      // getBone(14).rotation.y += 0.01;
-      if (currentPose) {
-        const manipulation = getManipulation(currentPose);
-        if (!manipulation) return;
-        const { head, shoulder } = manipulation;
-        getBone(14).rotation.y = head.pitch * 2;
-        // getBone(14).rotation.x = head.yaw;
-        console.log(orgRound(shoulder.pitch, 100));
-        // getBone(12).rotation.z = Math.PI / 6;
-        // getBone(12).rotation.z = shoulder.yaw;
-        getBone(12).rotation.z = shoulder.yaw - 0.2;
-      }
-      // getBone(28).translateX(0.1);
+      // const shoulderL = getBone(16);
+      const shoulderL = new Vector3(
+        getCurrentPose(11).x,
+        getCurrentPose(11).y,
+        getCurrentPose(11).z,
+      );
+      const elbowL = new Vector3(
+        getCurrentPose(13).x,
+        getCurrentPose(13).y,
+        getCurrentPose(13).z,
+      );
 
+      const upperArmBoneL = getBone(16);
+      // upperArmBoneL.rotation.x = 0
+      // upperArmBoneL.rotation.y = 0
+      // upperArmBoneL.rotation.z = 0
+      upperArmBoneL.quaternion.copy(calculateBoneRotation(shoulderL, elbowL));
+
+      // const leftElbow = new THREE.Vector3(keypoints3D[2].x, keypoints3D[2].y, keypoints3D[2].z);
+      // const leftUpperArmBone = nodes.LeftUpperArmBoneName;
+      // leftUpperArmBone.quaternion.copy(calculateBoneRotation(leftShoulder, leftElbow));
       // if (leftShinBone) {
       //   // 角度を滑らかに更新
       //   angleRef.current += delta * directionRef.current * 0.5; // 速度を調整
@@ -130,17 +145,23 @@ export const Preview: React.FC<{
 
   return (
     <>
-      <Environment map={envMap} background />
-      <ambientLight intensity={Math.PI / 9} />
+      {/* <Environment map={envMap} background /> */}
+      <ambientLight intensity={1} color={"#ff00f0"} />
       <spotLight
-        position={[10, 10, 10]}
+        position={[10, 30, 30]}
         angle={0.15}
         penumbra={1}
         decay={0}
-        intensity={2}
+        intensity={5}
+        color={"#ff00f0"}
       />
-      <pointLight position={[-10, -10, -10]} decay={0} intensity={1} />
-      <OrbitControls />
+      <pointLight
+        position={[-10, -10, -10]}
+        decay={0}
+        intensity={1}
+        color={"#ff00f0"}
+      />
+      {/* <OrbitControls /> */}
       <primitive ref={modelRef} object={gltf.scene} />
     </>
   );

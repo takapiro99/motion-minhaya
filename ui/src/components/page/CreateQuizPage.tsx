@@ -7,11 +7,7 @@ import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
 import { Button, TextArea } from "semantic-ui-react";
-import {
-  Preview,
-  PreviewConainer,
-  PreviewContainer,
-} from "../createQuiz/Preview";
+import { PreviewContainer } from "../createQuiz/Preview";
 import { localStorage } from "../utils/storage";
 
 type PoseDetector = poseDetection.PoseDetector;
@@ -32,7 +28,7 @@ export const CreateQuizPage: FC = () => {
   const [remainingSeconds, setRemainingSeconds] =
     useState<number>(RECORD_SECONDS);
   const [record, setRecord] = useState<poseDetection.Pose[]>([]);
-  const [mode, setMode] = useState<CreateQuizMode>("GALAXY");
+  const [mode, setMode] = useState<CreateQuizMode>("WITHCAMERA");
   const [currentPose, setCurrentPose] = useState<
     poseDetection.Pose["keypoints3D"] | null
   >(null);
@@ -236,9 +232,8 @@ export const CreateQuizPage: FC = () => {
           type="button"
           onClick={() => {
             const data = JSON.parse(
-              localStorage.getItem("quiz_1724949291809") ?? "[]"
+              localStorage.getItem("quiz_1724949291809") ?? "[]",
             ) as poseDetection.Pose[];
-            console.log(data.map((d) => d?.keypoints3D[11].z));
           }}
         >
           log
@@ -299,7 +294,7 @@ export const CreateQuizPage: FC = () => {
 const logEstimation = (
   pose: poseDetection.Pose["keypoints3D"],
   num: number,
-  xyz: "x" | "y" | "z"
+  xyz: "x" | "y" | "z",
 ) => {
   if (!pose) return;
   console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
