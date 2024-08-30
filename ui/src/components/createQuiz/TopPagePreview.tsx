@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { ThreeElements, useFrame } from "@react-three/fiber";
 import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { Bone, Quaternion, Vector3, Vector3Like } from "three";
+import { Bone } from "three";
 
 export const TopPagePreview: React.FC<{}> = () => {
   const gltf = useLoader(GLTFLoader, "/gltf/scene.gltf");
