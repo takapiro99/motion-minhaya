@@ -25,7 +25,7 @@ const onCloseSignal = () => {
     logger.info("server closed");
     process.exit();
   });
-  setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
+  setTimeout(() => process.exit(1), 1000).unref(); // Force shutdown after 10s
 };
 
 process.on("SIGINT", onCloseSignal);

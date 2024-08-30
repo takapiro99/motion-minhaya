@@ -6,20 +6,27 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
-import { Button, TextArea } from "semantic-ui-react";
-import {
-  Preview,
-  PreviewConainer,
-  PreviewContainer,
-} from "../createQuiz/Preview";
+import { Button, Message, MessageHeader, TextArea } from "semantic-ui-react";
+import { PreviewContainer } from "../createQuiz/Preview";
+import { localStorage } from "../utils/storage";
+import { serverOrigin } from "../../SocketContext";
 
 type PoseDetector = poseDetection.PoseDetector;
 const supportedModels = poseDetection.SupportedModels;
 const createDetector = poseDetection.createDetector;
 
 const RECORD_SECONDS = 10;
+const MODEL_TYPE: "lite" | "heavy" = "heavy";
 
 export type CreateQuizMode = "WITHCAMERA" | "GALAXY";
+
+export type TClientQuizInfo = {
+  // quizID: string;
+  pose: poseDetection.Pose[]; // 正規化された状態
+  createdAt: string;
+  answers: string[];
+  screenAspectRatio: number; // 縦/横
+};
 
 export const CreateQuizPage: FC = () => {
   const webcamRef = useRef<Webcam>(null);
@@ -29,8 +36,13 @@ export const CreateQuizPage: FC = () => {
   const [recording, setRecording] = useState<boolean>(false);
   const [remainingSeconds, setRemainingSeconds] =
     useState<number>(RECORD_SECONDS);
-  const [record, setRecord] = useState<poseDetection.Pose["keypoints3D"][]>([]);
-  const [mode, setMode] = useState<CreateQuizMode>("GALAXY");
+  const [record, setRecord] = useState<poseDetection.Pose[]>([]);
+  const [mode, setMode] = useState<CreateQuizMode>("WITHCAMERA");
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [quizUploading, setQuizUploading] = useState<boolean>(false);
+  const [currentPose, setCurrentPose] = useState<
+    poseDetection.Pose["keypoints3D"] | null
+  >(null);
 
   const startRecording = () => {
     setRecording(true);
@@ -49,6 +61,7 @@ export const CreateQuizPage: FC = () => {
     }, 1000);
   };
 
+  // estimate, render, and maybe save
   const estimatePoses = useCallback(async () => {
     if (
       webcamRef.current !== null &&
@@ -60,8 +73,11 @@ export const CreateQuizPage: FC = () => {
         const poses = await detector.estimatePoses(video, {
           flipHorizontal: false,
         });
-        if (recording && poses.length > 0) {
-          setRecord((prev) => [...prev, poses[0].keypoints3D]);
+        if (poses.length > 0) {
+          setCurrentPose(poses[0].keypoints3D);
+          if (recording) setRecord((prev) => [...prev, poses[0]]);
+        } else {
+          setCurrentPose(null);
         }
         // renderResult
         if (
@@ -83,11 +99,11 @@ export const CreateQuizPage: FC = () => {
     return () => clearInterval(interval);
   }, [detector, estimatePoses]);
 
+  // setup
   useEffect(() => {
     console.log("initialize models");
     const loadModel = async () => {
       const model = supportedModels.BlazePose;
-      console.log("blazepose selected");
       if (webcamRef.current && webcamRef.current.video && canvasRef.current) {
         if (webcamRef.current.video.readyState < 2) {
           await new Promise((resolve) => {
@@ -97,18 +113,15 @@ export const CreateQuizPage: FC = () => {
               };
           });
         }
-        canvasRef.current.width =
-          webcamRef.current.video.getBoundingClientRect().width;
-        canvasRef.current.height =
-          webcamRef.current.video.getBoundingClientRect().height;
+        const vid = webcamRef.current.video;
+        canvasRef.current.width = vid.getBoundingClientRect().width;
+        canvasRef.current.height = vid.getBoundingClientRect().height;
         rendererRef.current = new RendererCanvas2d(canvasRef.current);
-        console.log("canvas initialized");
       }
       try {
         const detector = await createDetector(model, {
           runtime: "mediapipe",
-          // modelType: "lite",
-          modelType: "heavy",
+          modelType: MODEL_TYPE,
           solutionPath: "https://cdn.jsdelivr.net/npm/@mediapipe/pose",
           // solutionPath: "node_modules/@mediapipe/pose",
         });
@@ -130,6 +143,37 @@ export const CreateQuizPage: FC = () => {
       }
     }
   }, []);
+
+  const saveLocalStorage = () => {
+    if (record.length === 0) return;
+    const key = `quiz_${new Date().getTime()}`;
+    localStorage.setItem(key, JSON.stringify(record));
+  };
+
+  const handleSaveQuiz = async () => {
+    if (record.length === 0 || answers.length === 0) return;
+    setQuizUploading(true);
+    const quizInfo: TClientQuizInfo = {
+      pose: record,
+      answers: answers,
+      createdAt: new Date().toISOString(),
+      screenAspectRatio:
+        (canvasRef.current?.height ?? 1) / (canvasRef.current?.width ?? 1),
+    };
+    try {
+      await fetch(`http://${serverOrigin}/api/quiz`, {
+        method: "POST",
+        body: JSON.stringify(quizInfo),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      alert(error);
+    } finally {
+      setQuizUploading(false);
+    }
+  };
 
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
@@ -182,14 +226,24 @@ export const CreateQuizPage: FC = () => {
         <Button
           primary
           type="button"
-          onClick={() => alert("TODO")}
+          onClick={handleSaveQuiz}
           disabled={record.length === 0 || recording}
         >
-          正解ともに保存(TODO)
+          正解ともに保存
+        </Button>
+        <Button
+          primary
+          type="button"
+          onClick={saveLocalStorage}
+          disabled={record.length === 0 || recording}
+        >
+          LocalStorageに保存
         </Button>
         <TextArea
           disabled={record.length === 0 || recording}
-          placeholder="正答を入力"
+          placeholder="正答を入力（半角カンマ区切りで）"
+          value={answers.join(",")}
+          onChange={(e) => setAnswers(e.target.value.split(","))}
         />
         <Button
           secondary
@@ -219,8 +273,63 @@ export const CreateQuizPage: FC = () => {
           transform: "translateX(-50%)",
         }}
       >
-        <PreviewContainer />
+        {recording && (
+          <Message negative size="massive">
+            <MessageHeader>
+              Recording!! のこり{remainingSeconds}秒
+            </MessageHeader>
+          </Message>
+        )}
+        {/* 一旦非表示にします。。。 */}
+        {/* <PreviewContainer currentPose={currentPose} /> */}
       </div>
     </div>
   );
+};
+
+// Bone name: _rootJoint
+// root_01
+// spine_01_02
+// pelvis_03
+// thighL_04
+// shinL_05
+// footL_06
+// toeL_07
+// thighR_08
+// shinR_09
+// footR_010
+// toeR_011
+// spine_02_012
+// spine_03_013
+// head_014
+// shoulderL_015
+// upper_armL_016
+// forearmL_017
+// handL_018
+// fingersL_019
+// thumb_01L_020
+// thumb_02L_021
+// shoulderR_022
+// upper_armR_023
+// forearmR_00
+// handR_024
+// fingersR_025
+// thumb_01R_026
+// thumb_02R_027
+// TAR_kneeL_028
+// IK_handL_029
+// IK_footL_030
+// TAR_elbowL_031
+// TAR_kneeR_032
+// IK_handR_033
+// IK_footR_034
+// TAR_elbowR_035
+
+const logEstimation = (
+  pose: poseDetection.Pose["keypoints3D"],
+  num: number,
+  xyz: "x" | "y" | "z",
+) => {
+  if (!pose) return;
+  console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
 };
