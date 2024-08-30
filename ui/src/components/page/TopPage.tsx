@@ -1,4 +1,4 @@
-import { FC, useContext, useLayoutEffect, useRef } from "react";
+import { FC, useContext, useEffect, useLayoutEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
@@ -6,11 +6,17 @@ import { Canvas } from "@react-three/fiber";
 import { TopPagePreview } from "../createQuiz/TopPagePreview";
 import LogoImage from "../../../public/logo.png";
 import ParticleSettings from "../../../public/particles.json?url";
+import useSound from "use-sound";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
+  const [play] = useSound(
+    "../../../public/music/topPageAndStartGameResult.mp3",
+    { volume: 0.3, loop: true },
+  )
+  useEffect(() => { play() }, [play])
 
   useLayoutEffect(() => {
     /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
