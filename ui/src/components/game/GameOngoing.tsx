@@ -3,6 +3,7 @@ import { Button, Input } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
 import { useQuizStatus } from "../../hooks/useQuizStatus";
 import { useCountdown } from "../../hooks/useCountdown";
+import { UsersInfo } from "./UsersInfo";
 
 // type GameOngoingProps = {}
 
@@ -47,6 +48,11 @@ export const GameOngoing: FC = () => {
     <>
       <div>第 {game.currentQuizNumberOneIndexed} 問</div>
       <div>残り {leftTime} 秒</div>
+      <UsersInfo
+        participants={game.participants}
+        guesses={game.quizzes?.find((quiz) => quiz.quizNumber === game.currentQuizNumberOneIndexed)?.guesses ?? null}
+        gameResult={game.gameResult}
+      />
       {quizStatus === "NOT_STARTED" && <div>まだ問題が始まっていません。</div>}
       {quizStatus === "CAN_ANSWER" && (
         <div>
