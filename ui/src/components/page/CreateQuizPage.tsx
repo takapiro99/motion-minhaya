@@ -6,9 +6,10 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
-import { Button, TextArea } from "semantic-ui-react";
+import { Button, Message, MessageHeader, TextArea } from "semantic-ui-react";
 import { PreviewContainer } from "../createQuiz/Preview";
 import { localStorage } from "../utils/storage";
+import { serverOrigin } from "../../SocketContext";
 
 type PoseDetector = poseDetection.PoseDetector;
 const supportedModels = poseDetection.SupportedModels;
@@ -18,6 +19,14 @@ const RECORD_SECONDS = 10;
 const MODEL_TYPE: "lite" | "heavy" = "heavy";
 
 export type CreateQuizMode = "WITHCAMERA" | "GALAXY";
+
+export type TClientQuizInfo = {
+  // quizID: string;
+  pose: poseDetection.Pose[]; // 正規化された状態
+  createdAt: string;
+  answers: string[];
+  screenAspectRatio: number; // 縦/横
+};
 
 export const CreateQuizPage: FC = () => {
   const webcamRef = useRef<Webcam>(null);
@@ -29,6 +38,8 @@ export const CreateQuizPage: FC = () => {
     useState<number>(RECORD_SECONDS);
   const [record, setRecord] = useState<poseDetection.Pose[]>([]);
   const [mode, setMode] = useState<CreateQuizMode>("WITHCAMERA");
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [quizUploading, setQuizUploading] = useState<boolean>(false);
   const [currentPose, setCurrentPose] = useState<
     poseDetection.Pose["keypoints3D"] | null
   >(null);
@@ -62,7 +73,6 @@ export const CreateQuizPage: FC = () => {
         const poses = await detector.estimatePoses(video, {
           flipHorizontal: false,
         });
-        // logEstimation(poses[0].keypoints3D, 11, "z");
         if (poses.length > 0) {
           setCurrentPose(poses[0].keypoints3D);
           if (recording) setRecord((prev) => [...prev, poses[0]]);
@@ -140,6 +150,31 @@ export const CreateQuizPage: FC = () => {
     localStorage.setItem(key, JSON.stringify(record));
   };
 
+  const handleSaveQuiz = async () => {
+    if (record.length === 0 || answers.length === 0) return;
+    setQuizUploading(true);
+    const quizInfo: TClientQuizInfo = {
+      pose: record,
+      answers: answers,
+      createdAt: new Date().toISOString(),
+      screenAspectRatio:
+        (canvasRef.current?.height ?? 1) / (canvasRef.current?.width ?? 1),
+    };
+    try {
+      await fetch(`http://${serverOrigin}/api/quiz`, {
+        method: "POST",
+        body: JSON.stringify(quizInfo),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      alert(error);
+    } finally {
+      setQuizUploading(false);
+    }
+  };
+
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
       <canvas
@@ -191,10 +226,10 @@ export const CreateQuizPage: FC = () => {
         <Button
           primary
           type="button"
-          onClick={() => alert("TODO")}
+          onClick={handleSaveQuiz}
           disabled={record.length === 0 || recording}
         >
-          正解ともに保存(TODO)
+          正解ともに保存
         </Button>
         <Button
           primary
@@ -206,7 +241,9 @@ export const CreateQuizPage: FC = () => {
         </Button>
         <TextArea
           disabled={record.length === 0 || recording}
-          placeholder="正答を入力"
+          placeholder="正答を入力（半角カンマ区切りで）"
+          value={answers.join(",")}
+          onChange={(e) => setAnswers(e.target.value.split(","))}
         />
         <Button
           secondary
@@ -227,17 +264,6 @@ export const CreateQuizPage: FC = () => {
         >
           モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
         </Button>
-        <Button
-          secondary
-          type="button"
-          onClick={() => {
-            const data = JSON.parse(
-              localStorage.getItem("quiz_1724949291809") ?? "[]",
-            ) as poseDetection.Pose[];
-          }}
-        >
-          log
-        </Button>
       </div>
       <div
         style={{
@@ -247,7 +273,15 @@ export const CreateQuizPage: FC = () => {
           transform: "translateX(-50%)",
         }}
       >
-        <PreviewContainer currentPose={currentPose} />
+        {recording && (
+          <Message negative size="massive">
+            <MessageHeader>
+              Recording!! のこり{remainingSeconds}秒
+            </MessageHeader>
+          </Message>
+        )}
+        {/* 一旦非表示にします。。。 */}
+        {/* <PreviewContainer currentPose={currentPose} /> */}
       </div>
     </div>
   );
