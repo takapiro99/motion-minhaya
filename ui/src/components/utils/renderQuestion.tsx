@@ -210,7 +210,13 @@ export class RendererQuestionToCanvas2d {
     //     : [...Array(50)].map((_, i) => i);
     // const writeOnly = [...Array(50)].map((_, i) => i);
     // const writeOnly = [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
-    const writeOnly = [2, 5, 11,  25, 26, 27, 28];
+    // const writeOnly = [2, 5, 11,  25, 26, 27, 28];
+
+    const writeOnly = this.currentPlay <= 1
+      ? [2, 5, 11, 25, 26, 27, 28]
+      : this.currentPlay <= 2
+      ? [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]
+      : [...Array(50)].map((_, i) => i);
 
     for (const i of keypointInd.middle) {
       if (writeOnly.includes(i)) {
