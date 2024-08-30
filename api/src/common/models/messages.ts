@@ -99,6 +99,7 @@ export type MotionMinhayaWSServerMessage =
     //   gamePoint: number // ゲーム累積の点数
     // }[]
     guesses: Guess[] // Guess[] を返すようにしてみた
+    answers: string[]
     gameResult: GameResult[] // GameResult[] を返すようにしてみた
   }
   | {

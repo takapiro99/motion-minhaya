@@ -10,7 +10,6 @@ import { GameAnswering } from "./GameAnswering";
 
 // type GameOngoingProps = {}
 
-// 動作未検証
 export const GameOngoing: FC = () => {
   const { game, updateClientStatus, user, buttonPressed, guessAnswer } =
     useContext(SocketContext);
@@ -21,6 +20,7 @@ export const GameOngoing: FC = () => {
     // leftTime を渡した方が綺麗かも
     motionStartTimestamp: currentQuiz?.motionStartTimestamp ?? null,
     answerFinishTimestamp: currentQuiz?.answerFinishTimestamp ?? null,
+    currentQuiz: currentQuiz,
   });
   const { leftTime } = useCountdown({
     answerFinishTimestamp: currentQuiz?.answerFinishTimestamp ?? null,

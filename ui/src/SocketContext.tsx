@@ -2,9 +2,6 @@ import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import {
   Game,
-  GameResult,
-  Guess,
-  OnGoingGame,
   Participant,
   Quiz,
   WaitingParticipantsGame,
@@ -16,7 +13,6 @@ import {
   User,
 } from "./domain/type";
 import { MotionMinhayaWSServerMessage } from "../../api/src/common/models/messages";
-
 
 export const serverOrigin = import.meta.env.DEV
   ? "http://localhost:8080"
@@ -137,7 +133,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         const myClientId = message.clientId as string;
         const myConnectionId =
           participants.find(
-            (participant) => participant.clientId === myClientId
+            (participant) => participant.clientId === myClientId,
           )?.connectionId ?? null;
         setGame({
           ...game,
@@ -184,11 +180,12 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           return console.error("vvvv");
         }
         const addedQuiz = {
-          quizNumber: message.quizNumber as number,
-          motionId: message.motionId as string,
+          quizNumber: message.quizNumber,
+          motionId: message.motionId,
           motionStartTimestamp: message.motionStartTimestamp,
           answerFinishTimestamp: message.answerFinishTimestamp,
-          guesses: [] as Guess[],
+          guesses: [],
+          answers: [],
         } as Quiz;
         setGame({
           ...game,
@@ -199,23 +196,6 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         });
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING");
       }
-      // 動作未確認
-      // if (message.event === "PARTICIPANTS_ANSWER_STATUS_UPDATED") {
-      //   console.log("PARTICIPANTS_ANSWER_STATUS_UPDATED recieved!")
-      //   const currentQuizNumber = message.quizNumber as number
-      //   const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
-      //   const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
-      //   const addedQuiz = {
-      //     ...currentQuiz,
-      //     guesses: message.guesses as Guess[],
-      //   }
-      //   setGame({
-      //     ...game,
-      //     status: "ONGOING", // 不要な更新？
-      //     gameId: message.gameId as string, // 不要な更新？
-      //     quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
-      //   } as OnGoingGame)
-      // }
       if (message.event === "PARTICIPANTS_ANSWER_STATUS_UPDATED") {
         console.log("PARTICIPANTS_ANSWER_STATUS_UPDATED recieved!");
         console.log("game: ", game);
@@ -224,60 +204,68 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         }
         const currentQuizNumber = message.quizNumber as number;
         const currentQuiz = game.quizzes.find(
-          (quiz) => quiz.quizNumber === currentQuizNumber
+          (quiz) => quiz.quizNumber === currentQuizNumber,
         );
         if (currentQuiz === undefined) {
           return console.error(`[Error] currentQuiz cannot found`);
         }
         console.log("currentQuiz", currentQuiz);
         const notCurrentQuiz = game.quizzes.filter(
-          (quiz) => quiz.quizNumber !== currentQuizNumber
+          (quiz) => quiz.quizNumber !== currentQuizNumber,
         );
         const addedQuiz = {
           ...currentQuiz,
-          guesses: message.guesses as Guess[],
+          guesses: message.guesses,
         };
         console.log("addedQuiz", addedQuiz);
         setGame({
           ...game,
           status: "ONGOING", // 不要な更新？
           gameId: message.gameId as string, // 不要な更新？
-          quizzes: notCurrentQuiz
-            ? [...notCurrentQuiz, addedQuiz]
-            : [addedQuiz],
-        } as OnGoingGame);
+          quizzes: [...notCurrentQuiz, addedQuiz],
+        });
       }
-      // 動作未確認
       if (message.event === "QUIZ_RESULT") {
         console.log("QUIZ_RESULT recieved!");
-        const currentQuizNumber = message.quizNumber as number;
-        const currentQuiz = game.quizzes?.filter(
-          (quiz) => quiz.quizNumber === currentQuizNumber
+        if (game.status !== "ONGOING") {
+          return console.error(`[Error] game.status is not ONGOING`);
+        }
+        const currentQuizNumber = message.quizNumber;
+        const currentQuiz = game.quizzes?.find(
+          (quiz) => quiz.quizNumber === currentQuizNumber,
         );
-        const notCurrentQuiz = game.quizzes?.filter(
-          (quiz) => quiz.quizNumber !== currentQuizNumber
-        );
-        const addedQuiz = {
+        if (!currentQuiz) {
+          return console.error(`[Error] currentQuiz cannot found`);
+        }
+        const notCurrentQuiz =
+          game.quizzes?.filter(
+            (quiz) => quiz.quizNumber !== currentQuizNumber,
+          ) ?? [];
+        const addedQuiz: Quiz = {
           ...currentQuiz,
-          guesses: message.guesses as Guess[],
+          guesses: message.guesses,
+          answers: message.answers,
         };
         setGame({
           ...game,
           status: "ONGOING", // 不要な更新？
-          gameId: message.gameId as string, // 不要な更新？
-          quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
-          gameResult: message.gameResult as GameResult[],
-        } as OnGoingGame);
+          gameId: message.gameId, // 不要な更新？
+          quizzes: [...notCurrentQuiz, addedQuiz],
+          gameResult: message.gameResult,
+        });
       }
       // 動作未確認
       if (message.event === "GAME_RESULT") {
+        if (game.status !== "ONGOING") {
+          return console.error(`[Error] game.status is not ONGOING`);
+        }
         console.log("GAME_RESULT recieved!");
         setGame({
           ...game,
           status: "ONGOING", // 不要な更新？
-          gameId: message.gameId as string, // 不要な更新？
-          gameResult: message.gameResult as GameResult[],
-        } as OnGoingGame);
+          gameId: message.gameId, // 不要な更新？
+          gameResult: message.gameResult,
+        });
       }
     });
     return () => {

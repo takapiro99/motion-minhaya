@@ -47,7 +47,7 @@ export const createOngoingGame = (waitingGame: WaitingParticipantsGame): OnGoing
     status: "ONGOING",
     gameId: waitingGame.gameId,
     participants: waitingGame.participants,
-    currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
+    currentQuizNumberOneIndexed: 0,
     quizzes: [],
     gameResult: [],
   };
@@ -59,6 +59,7 @@ export type Quiz = {
   motionStartTimestamp: number; // unix timestamp
   answerFinishTimestamp: number; // unix timestamp
   guesses: Guess[];
+  answers: string[];
 };
 
 export type Participant = {

@@ -27,5 +27,9 @@ export const getQuizHandler = async (req: Request, res: Response) => {
         return;
     }
     const quizInfo = await storageAPI.getQuizById(quizID)
+    if (!quizInfo) {
+        res.status(500).send("Quiz not found");
+        return;
+    }
     res.status(200).send(quizInfo);
 }

@@ -82,7 +82,7 @@ export const emitter = {
     })
   },
   // 動作未確認
-  quizResult: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], gameResult: OnGoingGame["gameResult"], io: Server) => {
+  quizResult: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], gameResult: OnGoingGame["gameResult"], io: Server, answers: string[]) => {
     const quizNum = db.game.getGame(gameId)?.currentQuizNumberOneIndexed;
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
@@ -93,6 +93,7 @@ export const emitter = {
           quizNumber: quizNum as number,
           guesses: guesses,
           gameResult: gameResult,
+          answers: answers,
         });
       }
     })

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react"
 import { QuizStatus } from "../domain/type"
+import { Quiz } from "../../../api/src/common/models/game"
 
 type UseQuizStatusProps = {
   motionStartTimestamp: number | null,
   answerFinishTimestamp: number | null,
+  currentQuiz: Quiz | null,
 }
 
 type UseQuizStatus = {
@@ -15,6 +17,7 @@ type UseQuizStatus = {
 export const useQuizStatus = ({
   motionStartTimestamp,
   answerFinishTimestamp,
+  currentQuiz
 }: UseQuizStatusProps): UseQuizStatus => {
   const [quizStatus, setQuizStatus] = useState<QuizStatus>("NOT_STARTED")
 
@@ -35,7 +38,15 @@ export const useQuizStatus = ({
       }
     }
   }, [motionStartTimestamp, answerFinishTimestamp])
-  
+
+  useEffect(() => {
+    if (currentQuiz) {
+      if (currentQuiz.answers.length > 0) {
+        setQuizStatus("IN_RESULT")
+      }
+    }
+  })
+
   return {
     quizStatus: quizStatus,
     updateQuizStatus: setQuizStatus,

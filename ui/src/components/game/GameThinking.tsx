@@ -23,15 +23,19 @@ export const GameThinking: React.FC<{
     //   (quiz) => quiz.quizNumber === game.currentQuizNumberOneIndexed,
     // );
     const f = async () => {
-      const res = await fetch(
-        `${serverOrigin}/api/quiz/2ab227a9-4bf9-4944-8859-326c675cce71`,
-        {
-          method: "GET",
-        },
-      );
-      const quizResult = (await res.json()) as TClientQuizInfo;
-      console.log(quizResult);
-      setQuizInfo(quizResult);
+      try {
+        const res = await fetch(
+          `${serverOrigin}/api/quiz/2ab227a9-4bf9-4944-8859-326c675cce71`,
+          {
+            method: "GET",
+          },
+        );
+        const quizResult = (await res.json()) as TClientQuizInfo;
+        console.log(quizResult);
+        setQuizInfo(quizResult);
+      } catch (error) {
+        alert("error occurred:" + error);
+      }
     };
     resize();
     if (canvasRef.current) {
