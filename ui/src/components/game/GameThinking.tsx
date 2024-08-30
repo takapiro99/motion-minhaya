@@ -57,6 +57,10 @@ export const GameThinking: React.FC<{
         rendererRef.current.startPlaying(quizInfo);
       }
     }
+    return () => {
+      rendererRef.current?.stopPlaying();
+      rendererRef.current = null;
+    };
   }, [quizInfo]);
 
   let resize = () => {
