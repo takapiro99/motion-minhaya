@@ -9,9 +9,8 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
-    "start": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "build": "tsup",
-    "serve": "node dist/index.js",
+    "start": "echo 'ビルド済みをサーブします！！！！！注意！！！！！！！！！！！！！！！！！！！！' && node dist/index.js",
     "clean": "rimraf dist coverage",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --fix",
