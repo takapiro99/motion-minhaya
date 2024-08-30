@@ -10,6 +10,7 @@ import {
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
+import { io } from "@/index";
 import type { Server, Socket } from "socket.io";
 import { v4 } from "uuid";
 
@@ -40,7 +41,7 @@ export const gameHandler = (
       });
     case "GUESS_ANSWER":
       return handleGuessAnswer({
-        // socket,
+        socket,
         gameId: body.gameId,
         quizNumber: body.quizNumber,
         clientId: body.clientId,
@@ -104,20 +105,25 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
       newWaitingGame,
       io
     );
+    console.log(newWaitingGame);
     if (
       newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME
     ) {
       // start game
-      console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
+      console.log(`[waitingRoom] ${constants.PARTICIPANTS_PER_GAME}人集まったのでゲームを開始`);
       db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
-      emitter.emitGameStarted(
-        newWaitingGame.participants
-          .map((p) => p.connectionId)
-          .filter((p) => p !== null),
-        newWaitingGame,
-        io
-      );
-      startQuiz1(newWaitingGame.gameId, io);
+      setTimeout(() => {
+        emitter.emitGameStarted(
+          newWaitingGame.participants
+            .map((p) => p.connectionId)
+            .filter((p) => p !== null),
+          newWaitingGame,
+          io
+        );
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS)
+      setTimeout(() => {
+        startQuiz1(newWaitingGame.gameId, io);
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS + constants.START_GAME_TO_START_QUIZ1_MS)
     }
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
@@ -206,10 +212,25 @@ const handleButtonPressed = ({
   //   updatedOngoingGame?.quizzes[quizNumber].guesses,
   //   io,
   // )
+  if (!updatedOngoingGame || updatedOngoingGame.status !== "ONGOING") {
+    return console.log("aaa")
+  }
+  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
+  const a = updatedOngoingGame.quizzes.find((quiz) => quiz.quizNumber == quizNumber)?.guesses
+  if (a === undefined) {
+    return console.error("aaa")
+  }
+  emitter.emitParticipantsAnswerStatusUpdated(
+    updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    gameId,
+    quizNumber,
+    a,
+    io,
+  )
 };
 
 type handleGuessAnswerProps = {
-  // socket: Socket,
+  socket: Socket,
   clientId: string;
   gameId: string;
   quizNumber: number;
@@ -217,7 +238,7 @@ type handleGuessAnswerProps = {
 };
 
 const handleGuessAnswer = ({
-  // socket,
+  socket,
   clientId,
   gameId,
   quizNumber,
@@ -246,7 +267,7 @@ const handleGuessAnswer = ({
       `[Error]: hangleGuessAnswer but target guess of quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${guess}`
     );
   }
-  db.game.updateOngoingGame({
+  const updated: OnGoingGame = {
     ...ongoingGame,
     quizzes: [
       ...notTargetQuizzes,
@@ -261,15 +282,20 @@ const handleGuessAnswer = ({
         ],
       },
     ],
-  });
-  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame;
-  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
-  // emitter.emitParticipantsAnswerStatusUpdated(
-  //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
-  //   gameId,
-  //   updatedOngoingGame?.quizzes[quizNumber].guesses,
-  //   io,
-  // )
+  }
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+
+
+  db.game.updateOngoingGame(updated);
+  emitter.emitParticipantsAnswerStatusUpdated(
+    updated.participants.map(p => p.connectionId).filter((p) => p !== null),
+    gameId,
+    quizNumber,
+    updated.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
+    io,
+  )
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
