@@ -7,13 +7,13 @@ import { TopPagePreview } from "../createQuiz/TopPagePreview";
 import LogoImage from "../../../public/logo.png";
 import ParticleSettings from "../../../public/particles.json?url";
 import useSound from "use-sound";
-import MainBGM from "../../../public/music/topPageAndStartGameResult.mp3";
+import MainBGM from "../../../public/music/topPageAndStartGameResult.mp3?url";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play] = useSound(MainBGM, { volume: 0, loop: true });
+  const [play] = useSound(MainBGM, { volume: 0.3, loop: true });
   useEffect(() => {
     play();
   }, [play]);

@@ -7,7 +7,6 @@ import { UsersInfo } from "./UsersInfo";
 import { ParticipantsMatched } from "./ParticipantsMatched";
 import { GameThinking } from "./GameThinking";
 import { GameAnswering } from "./GameAnswering";
-import { GameResult } from "./GameResult";
 import { QuizResult } from "./QuizResult";
 
 // type GameOngoingProps = {}
@@ -81,7 +80,7 @@ export const GameOngoing: FC = () => {
       />
     );
   }
-  console.log(quizStatus);
+
   if (quizStatus === "IN_RESULT") {
     if (currentQuiz) return <QuizResult quiz={currentQuiz} />;
   }

@@ -7,24 +7,33 @@ import { createUseStyles } from "react-jss";
 const useStyles = createUseStyles({
   results: {
     display: "flex",
-    justifyContent: "center",
-    flexFlow: "column",
+    // justifyContent: "center",
+    justifyContent: "space-between",
+    // flexFlow: "column",
+    flexDirection: "column",
+    width: "100%",
     gap: "12px",
   },
   result: {
-    height: "36px",
-    width: "80%",
+    // height: "36px",
+    width: "90%",
+    margin: "0 auto",
     borderRadius: "40px",
     background: "white",
+    display: "flex",
+    justifyContent: "space-around",
+    alignItems: "center",
+    padding: "16px 0",
+    fontSize: "1.8rem",
   },
   rank: {
-    width: "20%",
+    // width: "20%",
   },
   name: {
-    width: "50%",
+    // width: "50%",
   },
   gamePoint: {
-    width: "30%",
+    // width: "30%",
   },
 });
 
@@ -54,9 +63,9 @@ export const GameResult: FC = () => {
         } // css 確認用
         return (
           <div className={classes.result}>
-            <p className={classes.rank}>{index + 1}位</p>
-            <p className={classes.name}>{result.name}</p>
-            <p className={classes.gamePoint}>{result.gamePoint}</p>
+            <div className={classes.rank}>{index + 1}位</div>
+            <div className={classes.name}>{result.name}</div>
+            <div className={classes.gamePoint}>{result.gamePoint}pt</div>
           </div>
         );
       })}

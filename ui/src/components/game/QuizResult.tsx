@@ -1,16 +1,12 @@
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
-import { Button, Input, Modal, ModalHeader } from "semantic-ui-react";
-import { UsersInfo } from "./UsersInfo";
-import { SocketContext } from "../../SocketContext";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Modal, ModalHeader } from "semantic-ui-react";
 import { Quiz } from "../../../../api/src/common/models/game";
 import ParticleSettings from "../../../public/particles.json?url";
-import { div } from "three/webgpu";
 
 export const QuizResult: React.FC<{
   quiz: Quiz;
 }> = ({ quiz }) => {
   const [open, setOpen] = useState(true);
-  const { game } = useContext(SocketContext);
 
   useEffect(() => {
     const sid = setTimeout(() => {
@@ -120,7 +116,7 @@ export const QuizResult: React.FC<{
           .sort((a, b) => a.quizPoint - b.quizPoint)
           .map((g) => (
             <div
-              key={g.clientId}
+              key={g.name}
               style={{
                 margin: "6px 0",
                 display: "flex",

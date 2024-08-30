@@ -277,7 +277,7 @@ const handleGuessAnswer = async ({
     if (!motion) {
       return console.error(`[Error]: handleGuessAnswer but motion not found`);
     }
-    newGuesses = newGuesses.map((guess) => {
+    newGuesses = copy(newGuesses).map((guess) => {
       if (!motion) return guess
       const correct = motion.answers.includes(guess.guess ?? "___");
       const pressedOrder = (newGuesses
@@ -325,7 +325,17 @@ const handleGuessAnswer = async ({
         emitter.gameResult(
           newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
           gameId,
-          newOngoingGame.gameResult,
+          newOngoingGame.participants.map((p) => {
+            return {
+              ...p,
+              gamePoint: newOngoingGame.quizzes.reduce((acc, quiz) => {
+                const guess = quiz.guesses.find((g) => g.clientId === p.clientId);
+                if (!guess) return acc;
+                return acc + guess.quizPoint;
+              }
+                , 0)
+            }
+          }),
           io
         );
       }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS + constants.QUIZ_RESULT_TO_NEXT_QUIZ_MS);
