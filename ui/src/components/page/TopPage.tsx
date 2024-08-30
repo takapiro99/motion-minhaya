@@ -14,7 +14,7 @@ export const TopPage: FC = () => {
   const parentRef = useRef<HTMLDivElement>(null);
   const [play] = useSound(
     "../../../public/music/topPageAndStartGameResult.mp3",
-    { volume: 0.3, loop: true },
+    { volume: 0, loop: true },
   )
   useEffect(() => { play() }, [play])
 

@@ -28,18 +28,6 @@ export const NameInputing: FC = () => {
     });
   }, []);
 
-  // return (
-  //   <div
-  //     style={{
-  //       // position: "relative",
-  //       height: "100%",
-  //       width: "100%",
-  //       // maxWidth: "680px",
-  //       background: "#111",
-  //     }}
-  //     id="particles-js"
-  //   >
-
   return (
     <div
       style={{

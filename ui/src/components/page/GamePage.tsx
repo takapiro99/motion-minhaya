@@ -25,10 +25,14 @@ export const GamePage: FC = () => {
       }}
     >
       {clientStatus === "NAME_INPUTING" && <NameInputing />}
+
+      {/* これは実質ない */}
       {clientStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && (
         <ConfirmingWaitingRoomJoinable />
       )}
+      {/* これも実質ない */}
       {clientStatus === "WAITING_ROOM_UNJOINABLE" && <WaitingRoomUnjoinable />}
+
       {clientStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
       {/* {clientStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />} */}
       {/* {clientStatus === "GAME_STARTED" && <GameStarted />} */}
