@@ -21,3 +21,17 @@ export type User = {
   clientId: string | null,
   name: string,
 }
+
+export type ButtonPressedProps = {
+  gameId: string,
+  quizNumber: number,
+  clientId: string,
+  buttonPressedTimestamp: number,
+}
+
+export type GuessAnswerProps = {
+  clientId: string,
+  gameId: string,
+  quizNumber: number,
+  guess: string,
+}

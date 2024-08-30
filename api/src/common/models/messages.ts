@@ -18,10 +18,17 @@ export type MotionMinhayaWSClientMessage =
   }
   | {
     action: "BUTTON_PRESSED";
+    gameId: string;
+		quizNumber: number;
+		clientId: string;
+		buttonPressedTimestamp: number;
   }
   | {
     action: "GUESS_ANSWER";
-    answer: string;
+    clientId: string,
+    gameId: string,
+    quizNumber: number,
+    guess: string,
   };
 
 type MotionMinhayaWSServerMessageBase = {

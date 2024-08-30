@@ -60,7 +60,8 @@ export const db = {
 
       conn.update((data) => {
         const existingGame = data.games.find((game) => game.gameId === ongoingGame.gameId);
-        if (!existingGame || existingGame.status !== "ONGOING") return;
+        // if (!existingGame || existingGame.status !== "ONGOING") return; // WAITING_PARTICIPANTS -> ONGOING に遷移できない
+        if (!existingGame) return;
         for (const key of getKeys(ongoingGame)) {
           switch (key) {
             case "participants":

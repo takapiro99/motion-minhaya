@@ -1,7 +1,7 @@
 import { createContext, FC, ReactNode, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { Game, GameResult, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
-import { ClientStatus, User } from "./domain/type";
+import { ButtonPressedProps, ClientStatus, GuessAnswerProps, User } from "./domain/type";
 
 type SocketContextType = {
   socket: Socket;
@@ -13,6 +13,8 @@ type SocketContextType = {
   updateUser: (user: User) => void;
   ping: () => void;
   enterWaitingRoom: (name: string) => void;
+  buttonPressed: (buttonPressedProps: ButtonPressedProps) => void;
+  guessAnswer: (guessAnswerProps: GuessAnswerProps) => void;
 };
 
 const socket = io(import.meta.env.SERVER_ORIGIN ?? "localhost:8080");
@@ -23,6 +25,36 @@ const enterWaitingRoom = (name: string) => {
   socket.emit("game", {
     "action": "ENTER_WAITING_ROOM", 
     "name": name,
+  })
+}
+
+const buttonPressed = ({
+  gameId,
+  quizNumber,
+  clientId,
+  buttonPressedTimestamp,
+}: ButtonPressedProps) => {
+  socket.emit("game", {
+    "action": "BUTTON_PRESSED",
+		"gameId": gameId,
+		"quizNumber": quizNumber,
+		"clientId": clientId,
+		"buttonPressedTimestamp": buttonPressedTimestamp,
+  })
+}
+
+const guessAnswer = ({
+  gameId,
+  quizNumber,
+  clientId,
+  guess,
+}: GuessAnswerProps) => {
+  socket.emit("game", {
+    "action": "GUESS_ANSWER",
+		"clientId": clientId,
+		"gameId": gameId,
+		"quizNumber": quizNumber,
+		"guess": guess,
   })
 }
 
@@ -47,6 +79,8 @@ export const SocketContext = createContext<SocketContextType>({
   updateUser: () => {},
   ping,
   enterWaitingRoom,
+  buttonPressed,
+  guessAnswer,
 });
 
 export const SocketContextProvider: FC<{ children: ReactNode }> = ({
@@ -79,13 +113,21 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       }
       if (message.event === "WAITING_ROOM_JOINED") {
         console.log("WAITING_ROOM_JOINED recieved!")
+        const participants = message.participants as Participant[]
+        const myClientId = message.clientId as string
+        const myConnectionId = participants.find((participant) => participant.clientId === myClientId)?.connectionId ?? null
         setGame({
           ...game,
           status: "WAITING_PARTICIPANTS",
           gameId: message.gameId as string,
-          participants: message.participants as Participant[],
+          participants: participants,
         } as WaitingParticipantsGame)
         setClientStatus("PARTICIPANTS_WAITING")
+        setUser({
+          ...user,
+          connectionId: myConnectionId,
+          clientId: myClientId,
+        })
       }
       if (message.event === "WAITING_ROOM_UPDATED") {
         console.log("WAITING_ROOM_UPDATED recieved!")
@@ -188,6 +230,11 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
     console.log("game:", game)
   }, [game])
 
+  // user の状態確認用
+  useEffect(() => {
+    console.log("user:", user)
+  }, [user])
+
   return (
     <SocketContext.Provider
       value={{
@@ -199,7 +246,9 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         user,
         updateUser: setUser,
         ping,
-        enterWaitingRoom
+        enterWaitingRoom,
+        buttonPressed,
+        guessAnswer,
       }}
     >
       {children}

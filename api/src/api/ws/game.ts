@@ -1,5 +1,5 @@
 import { constants } from "@/common/constants";
-import { Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
+import { Guess, OnGoingGame, Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
@@ -18,9 +18,21 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, 
     case "ENTER_WAITING_ROOM":
       return handleEnterWaitingRoom(socket, body.name, io);
     case "BUTTON_PRESSED":
-      return handleButtonPressed(socket);
+      return handleButtonPressed({
+        // socket,
+        gameId: body.gameId,
+        quizNumber: body.quizNumber,
+        clientId: body.clientId,
+        buttonPressedTimestamp: body.buttonPressedTimestamp,
+      });
     case "GUESS_ANSWER":
-      return handleGuessAnswer(socket, body.answer);
+      return handleGuessAnswer({
+        // socket,
+        gameId: body.gameId,
+        quizNumber: body.quizNumber,
+        clientId: body.clientId,
+        guess: body.guess,
+      });
     default:
       return body satisfies never;
   }
@@ -88,12 +100,80 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
   }
 };
 
-const handleButtonPressed = (socket: Socket) => {
-  // TODO
+type handleButtonPressedProps = {
+  // socket: Socket,
+  gameId: string,
+  quizNumber: number,
+  clientId: string,
+  buttonPressedTimestamp: number,
+}
+
+const handleButtonPressed = ({
+  // socket,
+  gameId,
+  quizNumber,
+  clientId,
+  buttonPressedTimestamp,
+}: handleButtonPressedProps) => {
+  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
+  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
+  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
+  db.game.updateOngoingGame({
+    ...ongoingGame,
+    quizzes: [
+      ...ongoingGame.quizzes,
+      {
+        ...ongoingQuiz,
+        guesses: [
+          ...ongoingQuiz.guesses,
+          {
+            ...targetGuess,
+            buttonPressedTimeMs: buttonPressedTimestamp,
+          } as Guess,
+        ] as Guess[],
+      } as Quiz,
+    ] as Quiz[],
+  } as OnGoingGame)
+  const updatedOngoingGame = db.game.getGame(gameId)
+  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
 };
 
-const handleGuessAnswer = (socket: Socket, answer: string) => {
-  // TODO
+type handleGuessAnswerProps = {
+  // socket: Socket,
+  clientId: string,
+  gameId: string,
+  quizNumber: number,
+  guess: string,
+}
+
+const handleGuessAnswer = ({
+  // socket,
+  clientId,
+  gameId,
+  quizNumber,
+  guess,
+}: handleGuessAnswerProps) => {
+  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
+  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
+  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
+  db.game.updateOngoingGame({
+    ...ongoingGame,
+    quizzes: [
+      ...ongoingGame.quizzes,
+      {
+        ...ongoingQuiz,
+        guesses: [
+          ...ongoingQuiz.guesses,
+          {
+            ...targetGuess,
+            guess: guess,
+          } as Guess,
+        ] as Guess[],
+      } as Quiz,
+    ] as Quiz[],
+  } as OnGoingGame)
+  const updatedOngoingGame = db.game.getGame(gameId)
+  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
@@ -104,10 +184,11 @@ const startQuiz1 = (gameId: string, io: Server) => {
     ...ongoingGame,
     quizzes: ongoingGame.quizzes.concat(getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)),
   });
+  const latestOngoingGame = db.game.getGame(gameId) as OnGoingGame // updateOngoingGame しても ongoingGame は更新されないので再取得する
   emitter.emitQuizStarted(
     getSocketIDsFromParticipants(ongoingGame.participants),
-    ongoingGame.gameId,
-    ongoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed - 1],
+    latestOngoingGame.gameId,
+    latestOngoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed],
     io
   );
 };
