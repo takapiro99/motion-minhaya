@@ -10,6 +10,7 @@ import {
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
+import { storageAPI } from "@/common/utils/storage";
 import { io } from "@/index";
 import type { Server, Socket } from "socket.io";
 import { v4 } from "uuid";
@@ -178,53 +179,39 @@ const handleButtonPressed = ({
   if (!targetParticipant) {
     return console.error(`[Error]: button pressed but no participant found.`);
   }
+
+  const newGuesses: Guess[] = [
+    ...notTargetGuesses,
+    {
+      connectionId: targetParticipant.connectionId,
+      clientId: clientId,
+      name: targetParticipant.name,
+      buttonPressedTimeMs: buttonPressedTimestamp,
+      guess: null,
+      similarityPoint: -1, // 類似度点数
+      quizPoint: -1, // この問題で得た点数
+    }
+  ]
+
   const newOngoingGame: OnGoingGame = {
     ...ongoingGame,
     quizzes: [
       ...notTargetQuizzes,
       {
         ...targetQuiz,
-        guesses: [
-          ...notTargetGuesses,
-          {
-            connectionId: targetParticipant.connectionId,
-            clientId: clientId,
-            name: targetParticipant.name,
-            buttonPressedTimeMs: buttonPressedTimestamp,
-            guess: null,
-            similarityPoint: -1, // 類似度点数
-            quizPoint: -1, // この問題で得た点数
-          },
-        ],
+        guesses: newGuesses,
       },
-    ],
+    ]
   };
 
   console.log("newOngoingGame", JSON.stringify(newOngoingGame));
   db.game.updateOngoingGame(newOngoingGame);
 
-  const updatedOngoingGame = db.game.getGame(gameId);
-  console.log("updateOngoingGame", JSON.stringify(updatedOngoingGame)); // guesses: [Array] となっているので直す
-  // emitter.emitParticipantsAnswerStatusUpdated(
-  //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
-  //   gameId,
-  //   quizNumber,
-  //   updatedOngoingGame?.quizzes[quizNumber].guesses,
-  //   io,
-  // )
-  if (!updatedOngoingGame || updatedOngoingGame.status !== "ONGOING") {
-    return console.log("aaa")
-  }
-  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
-  const a = updatedOngoingGame.quizzes.find((quiz) => quiz.quizNumber == quizNumber)?.guesses
-  if (a === undefined) {
-    return console.error("aaa")
-  }
   emitter.emitParticipantsAnswerStatusUpdated(
-    updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
     gameId,
     quizNumber,
-    a,
+    newGuesses,
     io,
   )
 };
@@ -237,7 +224,7 @@ type handleGuessAnswerProps = {
   guess: string;
 };
 
-const handleGuessAnswer = ({
+const handleGuessAnswer = async ({
   socket,
   clientId,
   gameId,
@@ -262,66 +249,116 @@ const handleGuessAnswer = ({
   const notTargetGuesses = targetQuiz.guesses.filter(
     (guess) => guess.clientId !== clientId
   );
+
   if (!targetGuess) {
     return console.error(
       `[Error]: hangleGuessAnswer but target guess of quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${guess}`
     );
   }
-  const updated: OnGoingGame = {
+  const newGuesses = [
+    ...notTargetGuesses,
+    {
+      ...targetGuess,
+      guess: guess,
+    },
+  ]
+  const newOngoingGame: OnGoingGame = {
     ...ongoingGame,
     quizzes: [
       ...notTargetQuizzes,
       {
         ...targetQuiz,
-        guesses: [
-          ...notTargetGuesses,
-          {
-            ...targetGuess,
-            guess: guess,
-          },
-        ],
+        guesses: newGuesses
       },
     ],
+  };
+
+  db.game.updateOngoingGame(newOngoingGame);
+
+  // check if everyone answered
+  if (newGuesses.every((guess) => guess.guess !== null)) {
+    // 
+    // const a = storageAPI.getQuizById(targetQuiz.motionId);
+
+
+    // announce results
+    setTimeout(() => {
+      emitter.quizResult(
+        newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+        gameId,
+        newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
+        newOngoingGame.gameResult,
+        io
+      );
+    }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS);
+
+    // go next quiz or final result
+    if (newOngoingGame.currentQuizNumberOneIndexed = constants.NUMBER_OF_QUIZZES) {
+      setTimeout(() => {
+        emitter.gameResult(
+          newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+          gameId,
+          newOngoingGame.gameResult,
+          io
+        );
+      }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS + constants.QUIZ_RESULT_TO_NEXT_QUIZ_MS);
+      return
+    } else {
+      // go to next quiz
+      setTimeout(() => {
+        startQuiz1(gameId, io);
+      }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS + constants.QUIZ_RESULT_TO_NEXT_QUIZ_MS);
+    }
+  } else {
+    emitter.emitParticipantsAnswerStatusUpdated(
+      newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+      gameId,
+      quizNumber,
+      newGuesses,
+      io,
+    )
   }
-  console.log(JSON.stringify(updated.quizzes[0].guesses));
-  console.log(JSON.stringify(updated.quizzes[0].guesses));
-  console.log(JSON.stringify(updated.quizzes[0].guesses));
 
-
-  db.game.updateOngoingGame(updated);
   emitter.emitParticipantsAnswerStatusUpdated(
-    updated.participants.map(p => p.connectionId).filter((p) => p !== null),
+    newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
     gameId,
     quizNumber,
-    updated.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
+    newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
     io,
   )
 };
 
-const startQuiz1 = (gameId: string, io: Server) => {
+const shuffleArray = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
+const startQuiz1 = async (gameId: string, io: Server) => {
   const ongoingGame = db.game.getGame(gameId);
   if (!ongoingGame || ongoingGame.status === "WAITING_PARTICIPANTS") {
     return console.error(`[Error]: startQuiz1 but was waiting game`);
   }
-  // const ongoingGame = createOngoingGame(waitingGame);
-  db.game.updateOngoingGame({
+  const newQuiz = await getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)
+  if (newQuiz === null) {
+    return console.error(`[Error]: startQuiz1 but newQuiz is null`);
+  }
+
+  const newGame: OnGoingGame = {
     ...ongoingGame,
-    quizzes: ongoingGame.quizzes.concat(
-      getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)
-    ),
-  });
-  const latestOngoingGame = db.game.getGame(gameId) as OnGoingGame; // updateOngoingGame しても ongoingGame は更新されないので再取得する
+    quizzes: ongoingGame.quizzes.concat(newQuiz),
+  }
+  db.game.updateOngoingGame(newGame);
+
   emitter.emitQuizStarted(
     getSocketIDsFromParticipants(ongoingGame.participants),
-    latestOngoingGame.gameId,
-    latestOngoingGame.quizzes[ongoingGame.currentQuizNumberOneIndexed],
+    newGame.gameId,
+    newGame.quizzes[ongoingGame.currentQuizNumberOneIndexed],
     io
   );
 };
 
-const getRandomQuiz = (gameId: string, quizNumber: number): Quiz => {
+const getRandomQuiz = async (gameId: string, quizNumber: number): Promise<Quiz | null> => {
+  const quizzes = await storageAPI.listAllQuizzes();
+  if (!quizzes) return null
+  const motionId = shuffleArray(quizzes)[0];
   return {
-    motionId: "00000000-0000-4B00-9000-0000000001", // TODO
+    motionId: motionId.split(".json")[0], // TODO
     quizNumber: quizNumber,
     motionStartTimestamp: Date.now(),
     answerFinishTimestamp: Date.now() + constants.ANSWER_TIME_MS,

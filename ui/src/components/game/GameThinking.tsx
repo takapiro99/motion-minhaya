@@ -9,7 +9,7 @@ import { TClientQuizInfo } from "../page/CreateQuizPage";
 import { RendererQuestionToCanvas2d } from "../utils/renderQuestion";
 import { serverOrigin, SocketContext } from "../../SocketContext";
 import { UsersInfo } from "./UsersInfo";
-import { Button } from "semantic-ui-react";
+import { Button, Modal, ModalHeader } from "semantic-ui-react";
 
 export const GameThinking: React.FC<{
   quizNum: number;
@@ -19,8 +19,8 @@ export const GameThinking: React.FC<{
   const canvasParentRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<RendererQuestionToCanvas2d | null>(null);
-
   const [quizInfo, setQuizInfo] = useState<TClientQuizInfo | null>(null);
+  const [open, setOpen] = useState(true);
 
   const { game } = useContext(SocketContext);
 
@@ -48,20 +48,35 @@ export const GameThinking: React.FC<{
 
   useEffect(() => {
     window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      rendererRef.current?.stopPlaying();
+      rendererRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
     if (quizInfo) {
-      if (rendererRef.current) {
-        rendererRef.current.startPlaying(quizInfo);
-      }
+      setTimeout(() => {
+        setOpen(false);
+      }, 2000);
     }
-    return () => {
-      rendererRef.current?.stopPlaying();
-      rendererRef.current = null;
-    };
   }, [quizInfo]);
+
+  useEffect(() => {
+    if (!open) {
+      if (quizInfo) {
+        if (rendererRef.current) {
+          rendererRef.current.startPlaying(quizInfo);
+        }
+      }
+      return () => {
+        rendererRef.current?.stopPlaying();
+        rendererRef.current = null;
+      };
+    }
+  }, [open]);
 
   let resize = () => {
     if (canvasRef.current) {
@@ -84,6 +99,19 @@ export const GameThinking: React.FC<{
       }}
       id="particles-js"
     >
+      <Modal
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
+        open={open}
+        style={{ width: "50%" }}
+      >
+        <ModalHeader style={{ textAlign: "center", fontSize: "3rem" }}>
+          第{quizNum}問
+        </ModalHeader>
+        <Modal.Content style={{ textAlign: "center", fontSize: "2rem" }}>
+          これ、何してる？
+        </Modal.Content>
+      </Modal>
       <div
         style={{
           position: "absolute",
@@ -115,7 +143,6 @@ export const GameThinking: React.FC<{
         <div
           style={{
             display: "flex",
-            border: "2px solid blue",
             width: "100%",
             maxWidth: "680px",
             height: "100%",
@@ -128,7 +155,6 @@ export const GameThinking: React.FC<{
         <div
           className="footer"
           style={{
-            border: "2px solid red",
             height: "120px",
             display: "flex",
             flexDirection: "row",

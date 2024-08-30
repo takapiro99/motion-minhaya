@@ -1,6 +1,7 @@
 import type { Server, Socket } from "socket.io";
 import type { OnGoingGame, Quiz, WaitingParticipantsGame } from "../models/game";
 import type { MotionMinhayaWSServerMessage } from "../models/messages";
+import { db } from "./db";
 
 const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
   console.log(`[emit: ${body.event}] ${socket.id} <== ${JSON.stringify(body)}`);
@@ -53,8 +54,8 @@ export const emitter = {
           gameId: gameId,
           quizNumber: quiz?.quizNumber,
           motionId: quiz?.motionId,
-          motionStartTimestamp: quiz?.motionStartTimestamp.toString(),
-          answerFinishTimestamp: quiz?.answerFinishTimestamp.toString(),
+          motionStartTimestamp: quiz?.motionStartTimestamp,
+          answerFinishTimestamp: quiz?.answerFinishTimestamp,
         });
       }
     })
@@ -82,13 +83,14 @@ export const emitter = {
   },
   // 動作未確認
   quizResult: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], gameResult: OnGoingGame["gameResult"], io: Server) => {
+    const quizNum = db.game.getGame(gameId)?.currentQuizNumberOneIndexed;
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
         emitToSocketAck(socket, {
           event: "QUIZ_RESULT",
           gameId: gameId,
-          quizNumber: 1, // TODO
+          quizNumber: quizNum as number,
           guesses: guesses,
           gameResult: gameResult,
         });

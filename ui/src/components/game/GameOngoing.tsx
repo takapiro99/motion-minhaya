@@ -6,6 +6,7 @@ import { useCountdown } from "../../hooks/useCountdown";
 import { UsersInfo } from "./UsersInfo";
 import { ParticipantsMatched } from "./ParticipantsMatched";
 import { GameThinking } from "./GameThinking";
+import { GameAnswering } from "./GameAnswering";
 
 // type GameOngoingProps = {}
 
@@ -24,7 +25,6 @@ export const GameOngoing: FC = () => {
   const { leftTime } = useCountdown({
     answerFinishTimestamp: currentQuiz?.answerFinishTimestamp ?? null,
   });
-  const [guess, setGuess] = useState<string>("");
 
   const handleAnswerButtonClick = () => {
     updateQuizStatus("ANSWERING");
@@ -36,7 +36,7 @@ export const GameOngoing: FC = () => {
     });
   };
 
-  const handleSubmitButtonClick = () => {
+  const handleSubmitButtonClick = (guess: string) => {
     updateQuizStatus("ANSWERED");
     guessAnswer({
       clientId: user.clientId as string,
@@ -44,10 +44,6 @@ export const GameOngoing: FC = () => {
       quizNumber: game.currentQuizNumberOneIndexed as number,
       guess: guess,
     });
-  };
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setGuess(event.target.value);
   };
 
   if (quizStatus === "NOT_STARTED") {
@@ -60,6 +56,26 @@ export const GameOngoing: FC = () => {
         quizNum={game.currentQuizNumberOneIndexed ?? -1}
         leftTime={leftTime}
         handleAnswerButtonClick={handleAnswerButtonClick}
+      />
+    );
+  }
+
+  if (quizStatus === "ANSWERING") {
+    return (
+      <GameAnswering
+        quizNum={game.currentQuizNumberOneIndexed ?? -1}
+        leftTime={leftTime}
+        handleSubmit={handleSubmitButtonClick}
+      />
+    );
+  }
+  if (quizStatus === "ANSWERED") {
+    return (
+      <GameAnswering
+        quizNum={game.currentQuizNumberOneIndexed ?? -1}
+        leftTime={leftTime}
+        handleSubmit={handleSubmitButtonClick}
+        answered={true}
       />
     );
   }
@@ -77,14 +93,6 @@ export const GameOngoing: FC = () => {
         }
         gameResult={game.gameResult}
       />
-      {quizStatus === "ANSWERING" && (
-        <div>
-          <div>回答中です。</div>
-          <Input onChange={handleInputChange} />
-          <Button onClick={handleSubmitButtonClick}>提出する</Button>
-        </div>
-      )}
-      {quizStatus === "ANSWERED" && <div>回答を提出しました。</div>}
       {quizStatus === "IN_RESULT" && <div>結果を表示しています。</div>}
       <Button onClick={() => updateClientStatus("GAME_FINISIED")}>次へ</Button>
     </>
