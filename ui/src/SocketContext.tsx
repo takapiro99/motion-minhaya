@@ -19,7 +19,7 @@ import { MotionMinhayaWSServerMessage } from "../../api/src/common/models/messag
 
 
 export const serverOrigin = import.meta.env.DEV
-  ? "localhost:8080"
+  ? "http://localhost:8080"
   : "https://motion-minhaya-sxmhgfgw6q-an.a.run.app";
 
 type SocketContextType = {

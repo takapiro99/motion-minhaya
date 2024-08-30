@@ -7,8 +7,6 @@ import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
 import { Button, Message, MessageHeader, TextArea } from "semantic-ui-react";
-import { PreviewContainer } from "../createQuiz/Preview";
-import { localStorage } from "../utils/storage";
 import { serverOrigin } from "../../SocketContext";
 
 type PoseDetector = poseDetection.PoseDetector;
@@ -21,7 +19,7 @@ const MODEL_TYPE: "lite" | "heavy" = "heavy";
 export type CreateQuizMode = "WITHCAMERA" | "GALAXY";
 
 export type TClientQuizInfo = {
-  // quizID: string;
+  quizID: string;
   pose: poseDetection.Pose[]; // 正規化された状態
   createdAt: string;
   answers: string[];
@@ -43,6 +41,14 @@ export const CreateQuizPage: FC = () => {
   const [currentPose, setCurrentPose] = useState<
     poseDetection.Pose["keypoints3D"] | null
   >(null);
+
+  const reset = () => {
+    setRecording(false);
+    setRemainingSeconds(RECORD_SECONDS);
+    setRecord([]);
+    setAnswers([]);
+    setQuizUploading(false);
+  };
 
   const startRecording = () => {
     setRecording(true);
@@ -144,34 +150,47 @@ export const CreateQuizPage: FC = () => {
     }
   }, []);
 
-  const saveLocalStorage = () => {
-    if (record.length === 0) return;
-    const key = `quiz_${new Date().getTime()}`;
-    localStorage.setItem(key, JSON.stringify(record));
-  };
+  // const saveLocalStorage = () => {
+  //   if (record.length === 0) return;
+  //   const key = `quiz_${new Date().getTime()}`;
+  //   localStorage.setItem(key, JSON.stringify(record));
+  // };
 
   const handleSaveQuiz = async () => {
     if (record.length === 0 || answers.length === 0) return;
     setQuizUploading(true);
     const quizInfo: TClientQuizInfo = {
+      quizID: "",
       pose: record,
       answers: answers,
       createdAt: new Date().toISOString(),
       screenAspectRatio:
         (canvasRef.current?.height ?? 1) / (canvasRef.current?.width ?? 1),
     };
+    let resQuiz: TClientQuizInfo = {} as TClientQuizInfo;
     try {
-      await fetch(`http://${serverOrigin}/api/quiz`, {
+      const res = await fetch(`${serverOrigin}/api/quiz`, {
         method: "POST",
         body: JSON.stringify(quizInfo),
         headers: {
           "Content-Type": "application/json",
         },
       });
+      resQuiz = await res.json();
+      alert("done!");
+      reset();
     } catch (error) {
       alert(error);
     } finally {
-      setQuizUploading(false);
+    }
+    try {
+      const res = await fetch(`${serverOrigin}/api/quiz/${resQuiz.quizID}`, {
+        method: "GET",
+      });
+      const quizResult = await res.json();
+      console.log(quizResult);
+    } catch (error) {
+      alert(error);
     }
   };
 
@@ -227,18 +246,24 @@ export const CreateQuizPage: FC = () => {
           primary
           type="button"
           onClick={handleSaveQuiz}
-          disabled={record.length === 0 || recording}
+          disabled={
+            record.length === 0 ||
+            recording ||
+            quizUploading ||
+            answers.length === 0
+          }
+          loading={quizUploading}
         >
           正解ともに保存
         </Button>
-        <Button
+        {/* <Button
           primary
           type="button"
           onClick={saveLocalStorage}
           disabled={record.length === 0 || recording}
         >
           LocalStorageに保存
-        </Button>
+        </Button> */}
         <TextArea
           disabled={record.length === 0 || recording}
           placeholder="正答を入力（半角カンマ区切りで）"

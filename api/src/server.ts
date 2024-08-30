@@ -5,7 +5,7 @@ import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import { pino } from "pino";
-import { quizUploadHandler } from "./api/quiz";
+import { getQuizHandler, quizUploadHandler } from "./api/quiz";
 
 const logger = pino({ name: "server start" });
 
@@ -30,6 +30,7 @@ app.use(requestLogger);
 app.use("/health-check", healthCheckRouter);
 
 app.post("/api/quiz", quizUploadHandler);
+app.get("/api/quiz/:id", getQuizHandler);
 
 
 // Swagger UI
