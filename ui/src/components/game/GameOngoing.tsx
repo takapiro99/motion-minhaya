@@ -49,6 +49,7 @@ export const GameOngoing: FC = () => {
       <div>第 {game.currentQuizNumberOneIndexed} 問</div>
       <div>残り {leftTime} 秒</div>
       <UsersInfo
+        participants={game.participants}
         guesses={game.quizzes?.find((quiz) => quiz.quizNumber === game.currentQuizNumberOneIndexed)?.guesses ?? null}
         gameResult={game.gameResult}
       />

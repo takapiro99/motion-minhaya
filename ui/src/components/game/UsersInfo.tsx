@@ -1,13 +1,15 @@
 import { FC, useEffect, useState } from "react";
-import { GameResult, Guess } from "../../../../api/src/common/models/game";
+import { GameResult, Guess, Participant } from "../../../../api/src/common/models/game";
 import { UserInfo } from "./UserInfo";
 
 type UsersInfoProps = {
+  participants: Participant[] | null,
   guesses: Guess[] | null,
   gameResult: GameResult[] | null,
 }
 
 export const UsersInfo: FC<UsersInfoProps> = ({
+  participants,
   guesses,
   gameResult,
 }) => {
@@ -19,31 +21,34 @@ export const UsersInfo: FC<UsersInfoProps> = ({
   }[]>([])
 
   useEffect(() => {
-    if (guesses !== null && gameResult !== null) {
-      const updatedUsersInfo = guesses.map(guess => {
-        const participantResult = gameResult.find(result => result.clientId === guess.clientId)
+    if (participants !== null) {
+      const updatedUsersInfo = participants.map((participant) => {
+        const clientId = participant.clientId
+        const guess = guesses?.find((guess) => guess.clientId === clientId)
+        const gamePoint = gameResult?.find((gameResult) => gameResult.clientId === clientId)?.gamePoint ?? 0
         return {
-          name: guess.name,
-          buttonPressedTimeMs: guess.buttonPressedTimeMs,
-          guess: guess.guess,
-          gamePoint: participantResult?.gamePoint || 0,
+          name: participant.name,
+          buttonPressedTimeMs: guess?.buttonPressedTimeMs ?? null,
+          guess: guess?.guess ?? null,
+          gamePoint: gamePoint,
         }
       })
-      setUsersInfo(updatedUsersInfo);
+      setUsersInfo(updatedUsersInfo)
     }
-    console.log("usersInfo", usersInfo)
-  }, [guesses, gameResult])
-  
+  }, [participants, guesses, gameResult])
   
   return (
     <>
-      {usersInfo.forEach(userInfo => {
-        <UserInfo 
-          name={userInfo.name}
-          buttonPressedTimeMs={userInfo.buttonPressedTimeMs}
-          guess={userInfo.guess}
-          gamePoint={userInfo.gamePoint}
-        />
+      {usersInfo.map((userInfo, index) => {
+        return (
+          <UserInfo
+            key={index}
+            name={userInfo.name}
+            buttonPressedTimeMs={userInfo.buttonPressedTimeMs}
+            guess={userInfo.guess}
+            gamePoint={userInfo.gamePoint}
+          />
+        )
       })}
     </>
   )
