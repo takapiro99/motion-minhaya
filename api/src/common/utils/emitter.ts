@@ -59,14 +59,14 @@ export const emitter = {
       }
     })
   },
-  emitParticipantsAnswerStatusUpdated: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], io: Server) => {
+  emitParticipantsAnswerStatusUpdated: (socketIDs: string[], gameId: string, quizNumber: number, guesses: OnGoingGame["quizzes"][number]["guesses"], io: Server) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
         emitToSocketAck(socket, {
           event: "PARTICIPANTS_ANSWER_STATUS_UPDATED",
           gameId: gameId,
-          quizNumber: 1, // TODO
+          quizNumber: quizNumber,
           // participants: guesses.map((guess) => {
           //   return {
           //     clientId: guess.clientId,
