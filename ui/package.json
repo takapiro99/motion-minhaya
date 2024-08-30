@@ -21,6 +21,7 @@
     "@types/three": "^0.167.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-jss": "^10.10.0",
     "react-router-dom": "^6.26.1",
     "react-webcam": "^7.2.0",
     "semantic-ui-css": "^2.5.0",
