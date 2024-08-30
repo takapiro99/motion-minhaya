@@ -134,8 +134,15 @@ const handleButtonPressed = ({
       } as Quiz,
     ] as Quiz[],
   } as OnGoingGame)
-  const updatedOngoingGame = db.game.getGame(gameId)
+  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame
   console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
+  // emitter.emitParticipantsAnswerStatusUpdated(
+  //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+  //   gameId,
+  //   quizNumber,
+  //   updatedOngoingGame?.quizzes[quizNumber].guesses,
+  //   io,
+  // )
 };
 
 type handleGuessAnswerProps = {
@@ -172,8 +179,14 @@ const handleGuessAnswer = ({
       } as Quiz,
     ] as Quiz[],
   } as OnGoingGame)
-  const updatedOngoingGame = db.game.getGame(gameId)
+  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame
   console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
+  // emitter.emitParticipantsAnswerStatusUpdated(
+  //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+  //   gameId,
+  //   updatedOngoingGame?.quizzes[quizNumber].guesses,
+  //   io,
+  // )
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
