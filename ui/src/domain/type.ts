@@ -35,3 +35,5 @@ export type GuessAnswerProps = {
   quizNumber: number,
   guess: string,
 }
+
+export type UserQuizStatus = "BUTTON_NOT_PRESSED" | "BUTTON_PRESSED" | "ANSWER_SUBMITTED"
