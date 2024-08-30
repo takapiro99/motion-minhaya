@@ -151,11 +151,15 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           participants: message.participants as Participant[],
           currentQuizNumberOneIndexed: 0, // まだ始まっていないという意味
           quizzes: [] as Quiz[],
-        } as OnGoingGame)
+          gameResult: [],
+        })
         setClientStatus("GAME_ONGOING")
       }
       if (message.event === "QUIZ_STARTED") {
         console.log("QUIZ_STARTED recieved!")
+        if (game.status !== "ONGOING") {
+          return console.error("vvvv")
+        }
         const addedQuiz = {
           quizNumber: message.quizNumber as number,
           motionId: message.motionId as string,
@@ -169,24 +173,49 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           gameId: message.gameId as string, // 不要な更新？
           currentQuizNumberOneIndexed: message.quizNumber as number,
           quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
-        } as OnGoingGame)
+        })
         if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING")
       }
       // 動作未確認
+      // if (message.event === "PARTICIPANTS_ANSWER_STATUS_UPDATED") {
+      //   console.log("PARTICIPANTS_ANSWER_STATUS_UPDATED recieved!")
+      //   const currentQuizNumber = message.quizNumber as number
+      //   const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
+      //   const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
+      //   const addedQuiz = {
+      //     ...currentQuiz,
+      //     guesses: message.guesses as Guess[],
+      //   }
+      //   setGame({
+      //     ...game, 
+      //     status: "ONGOING", // 不要な更新？
+      //     gameId: message.gameId as string, // 不要な更新？
+      //     quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
+      //   } as OnGoingGame)
+      // }
       if (message.event === "PARTICIPANTS_ANSWER_STATUS_UPDATED") {
         console.log("PARTICIPANTS_ANSWER_STATUS_UPDATED recieved!")
+        console.log("game: ", game)
+        if (game.status !== "ONGOING") {
+          return console.error(`[Error] game.status is not ONGOING`)
+        }
         const currentQuizNumber = message.quizNumber as number
-        const currentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber === currentQuizNumber)
-        const notCurrentQuiz = game.quizzes?.filter(quiz => quiz.quizNumber !== currentQuizNumber)
+        const currentQuiz = game.quizzes.find((quiz) => quiz.quizNumber === currentQuizNumber)
+        if (currentQuiz === undefined) {
+          return console.error(`[Error] currentQuiz cannot found`)
+        }
+        console.log("currentQuiz", currentQuiz)
+        const notCurrentQuiz = game.quizzes.filter((quiz) => quiz.quizNumber !== currentQuizNumber)
         const addedQuiz = {
           ...currentQuiz,
           guesses: message.guesses as Guess[],
         }
+        console.log("addedQuiz", addedQuiz)
         setGame({
           ...game, 
           status: "ONGOING", // 不要な更新？
           gameId: message.gameId as string, // 不要な更新？
-          quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : addedQuiz,
+          quizzes: notCurrentQuiz ? [...notCurrentQuiz, addedQuiz] : [addedQuiz],
         } as OnGoingGame)
       }
       // 動作未確認
@@ -218,7 +247,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
         } as OnGoingGame)
       }
     });
-  }, []);
+  }, [clientStatus, game, user]);
 
   // clientStatus の状態確認用
   useEffect(() => {

@@ -10,6 +10,7 @@ import {
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
+import { io } from "@/index";
 import type { Server, Socket } from "socket.io";
 import { v4 } from "uuid";
 
@@ -40,7 +41,7 @@ export const gameHandler = (
       });
     case "GUESS_ANSWER":
       return handleGuessAnswer({
-        // socket,
+        socket,
         gameId: body.gameId,
         quizNumber: body.quizNumber,
         clientId: body.clientId,
@@ -206,10 +207,25 @@ const handleButtonPressed = ({
   //   updatedOngoingGame?.quizzes[quizNumber].guesses,
   //   io,
   // )
+  if (!updatedOngoingGame || updatedOngoingGame.status !== "ONGOING") {
+    return console.log("aaa")
+  }
+  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
+  const a = updatedOngoingGame.quizzes.find((quiz) => quiz.quizNumber == quizNumber)?.guesses
+  if (a === undefined) {
+    return console.error("aaa")
+  }
+  emitter.emitParticipantsAnswerStatusUpdated(
+    updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    gameId,
+    quizNumber,
+    a,
+    io,
+  )
 };
 
 type handleGuessAnswerProps = {
-  // socket: Socket,
+  socket: Socket,
   clientId: string;
   gameId: string;
   quizNumber: number;
@@ -217,7 +233,7 @@ type handleGuessAnswerProps = {
 };
 
 const handleGuessAnswer = ({
-  // socket,
+  socket,
   clientId,
   gameId,
   quizNumber,
@@ -262,14 +278,18 @@ const handleGuessAnswer = ({
       },
     ],
   });
-  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame;
+  const updatedOngoingGame = db.game.getGame(gameId);
+  if (!updatedOngoingGame || updatedOngoingGame.status !== "ONGOING") {
+    return console.log("aaa")
+  }
   console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
-  // emitter.emitParticipantsAnswerStatusUpdated(
-  //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
-  //   gameId,
-  //   updatedOngoingGame?.quizzes[quizNumber].guesses,
-  //   io,
-  // )
+  emitter.emitParticipantsAnswerStatusUpdated(
+    updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    gameId,
+    quizNumber,
+    updatedOngoingGame?.quizzes[quizNumber].guesses,
+    io,
+  )
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
