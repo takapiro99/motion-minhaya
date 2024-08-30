@@ -1,5 +1,12 @@
 import { constants } from "@/common/constants";
-import { Guess, OnGoingGame, Participant, type Quiz, type WaitingParticipantsGame, createOngoingGame } from "@/common/models/game";
+import {
+  Guess,
+  OnGoingGame,
+  Participant,
+  type Quiz,
+  type WaitingParticipantsGame,
+  createOngoingGame,
+} from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
 import { emitter } from "@/common/utils/emitter";
@@ -8,8 +15,14 @@ import { v4 } from "uuid";
 
 export const copy = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
 
-export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, io: Server) => {
-  console.log(`[receive: ${body.action}] ${socket.id} -> ${JSON.stringify(body)}`);
+export const gameHandler = (
+  body: MotionMinhayaWSClientMessage,
+  socket: Socket,
+  io: Server
+) => {
+  console.log(
+    `[receive: ${body.action}] ${socket.id} -> ${JSON.stringify(body)}`
+  );
   switch (body.action) {
     case "PING":
       return handlePing(socket);
@@ -40,7 +53,8 @@ export const gameHandler = (body: MotionMinhayaWSClientMessage, socket: Socket, 
 
 const handlePing = (socket: Socket) => emitter.emitPong(socket);
 
-const handlePingWithAck = (socket: Socket, message: string) => emitter.emitPongWithAck(socket, message);
+const handlePingWithAck = (socket: Socket, message: string) =>
+  emitter.emitPongWithAck(socket, message);
 
 const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
   // 空きがあればいれて、保存する
@@ -68,7 +82,9 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
     };
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
-    console.log(`[waitingRoom] 一人目の待機者。gameID: ${gameID}, name: ${name}`);
+    console.log(
+      `[waitingRoom] 一人目の待機者。gameID: ${gameID}, name: ${name}`
+    );
   } else if (waitingRooms.length === 1) {
     // join existing Game
     const clientId = v4();
@@ -81,15 +97,23 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
     db.game.upsertWaitingGame(newWaitingGame);
     emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
     console.log(
-      `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`,
+      `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`
     );
-    emitter.emitWaitingRoomUpdated(getSocketIDsFromParticipants(newWaitingGame.participants), newWaitingGame, io);
-    if (newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME) {
+    emitter.emitWaitingRoomUpdated(
+      getSocketIDsFromParticipants(newWaitingGame.participants),
+      newWaitingGame,
+      io
+    );
+    if (
+      newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME
+    ) {
       // start game
       console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
       db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
       emitter.emitGameStarted(
-        newWaitingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+        newWaitingGame.participants
+          .map((p) => p.connectionId)
+          .filter((p) => p !== null),
         newWaitingGame,
         io
       );
@@ -102,11 +126,11 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
 
 type handleButtonPressedProps = {
   // socket: Socket,
-  gameId: string,
-  quizNumber: number,
-  clientId: string,
-  buttonPressedTimestamp: number,
-}
+  gameId: string;
+  quizNumber: number;
+  clientId: string;
+  buttonPressedTimestamp: number;
+};
 
 const handleButtonPressed = ({
   // socket,
@@ -115,27 +139,66 @@ const handleButtonPressed = ({
   clientId,
   buttonPressedTimestamp,
 }: handleButtonPressedProps) => {
-  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
-  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
-  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
-  db.game.updateOngoingGame({
+  const ongoingGame = db.game.getGame(gameId); // as OnGoingGame
+  if (!ongoingGame || ongoingGame.status !== "ONGOING") {
+    return console.error(`[Error] handleButtonPressedでongoingじゃないよ？`);
+  }
+
+  const targetQuiz = ongoingGame.quizzes.find(
+    (quiz) => quiz.quizNumber === quizNumber
+  );
+  const notTargetQuizzes = ongoingGame.quizzes.filter(
+    (quiz) => quiz.quizNumber !== quizNumber
+  );
+  if (!targetQuiz) {
+    return console.error(
+      `[Error]: target quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${buttonPressedTimestamp}`
+    );
+  }
+  const targetGuess = targetQuiz.guesses.find(
+    (guess) => guess.clientId === clientId
+  );
+  const notTargetGuesses = targetQuiz.guesses.filter(
+    (guess) => guess.clientId !== clientId
+  );
+  if (targetGuess) {
+    return console.error(
+      `[Error]: button pressed but target guess of quiz has found!!: ${gameId}, ${quizNumber}, ${clientId}, ${buttonPressedTimestamp}`
+    );
+  }
+  const targetParticipant = ongoingGame.participants.find(
+    (p) => p.clientId == clientId
+  );
+  if (!targetParticipant) {
+    return console.error(`[Error]: button pressed but no participant found.`);
+  }
+  const newOngoingGame: OnGoingGame = {
     ...ongoingGame,
     quizzes: [
-      ...ongoingGame.quizzes,
+      ...notTargetQuizzes,
       {
-        ...ongoingQuiz,
+        ...targetQuiz,
         guesses: [
-          ...ongoingQuiz.guesses,
+          ...notTargetGuesses,
           {
-            ...targetGuess,
+            connectionId: targetParticipant.connectionId,
+            clientId: clientId,
+            name: targetParticipant.name,
             buttonPressedTimeMs: buttonPressedTimestamp,
-          } as Guess,
-        ] as Guess[],
-      } as Quiz,
-    ] as Quiz[],
-  } as OnGoingGame)
-  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame
-  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
+            guess: null,
+            similarityPoint: -1, // 類似度点数
+            quizPoint: -1, // この問題で得た点数
+          },
+        ],
+      },
+    ],
+  };
+
+  console.log("newOngoingGame", JSON.stringify(newOngoingGame));
+  db.game.updateOngoingGame(newOngoingGame);
+
+  const updatedOngoingGame = db.game.getGame(gameId);
+  console.log("updateOngoingGame", JSON.stringify(updatedOngoingGame)); // guesses: [Array] となっているので直す
   // emitter.emitParticipantsAnswerStatusUpdated(
   //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
   //   gameId,
@@ -147,11 +210,11 @@ const handleButtonPressed = ({
 
 type handleGuessAnswerProps = {
   // socket: Socket,
-  clientId: string,
-  gameId: string,
-  quizNumber: number,
-  guess: string,
-}
+  clientId: string;
+  gameId: string;
+  quizNumber: number;
+  guess: string;
+};
 
 const handleGuessAnswer = ({
   // socket,
@@ -160,27 +223,47 @@ const handleGuessAnswer = ({
   quizNumber,
   guess,
 }: handleGuessAnswerProps) => {
-  const ongoingGame = db.game.getGame(gameId) as OnGoingGame
-  const ongoingQuiz = ongoingGame.quizzes.find((quiz) => quiz.quizNumber === quizNumber) as Quiz
-  const targetGuess = ongoingQuiz.guesses.find((guess) => guess.clientId === clientId) as Guess
+  const ongoingGame = db.game.getGame(gameId) as OnGoingGame;
+  const targetQuiz = ongoingGame.quizzes.find(
+    (quiz) => quiz.quizNumber === quizNumber
+  );
+  const notTargetQuizzes = ongoingGame.quizzes.filter(
+    (quiz) => quiz.quizNumber !== quizNumber
+  );
+  if (!targetQuiz) {
+    return console.error(
+      `[Error]: handleGuessAnswer no ongoingQuiz ${clientId}, ${gameId}, ${quizNumber}, ${guess}`
+    );
+  }
+  const targetGuess = targetQuiz.guesses.find(
+    (guess) => guess.clientId === clientId
+  );
+  const notTargetGuesses = targetQuiz.guesses.filter(
+    (guess) => guess.clientId !== clientId
+  );
+  if (!targetGuess) {
+    return console.error(
+      `[Error]: hangleGuessAnswer but target guess of quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${guess}`
+    );
+  }
   db.game.updateOngoingGame({
     ...ongoingGame,
     quizzes: [
-      ...ongoingGame.quizzes,
+      ...notTargetQuizzes,
       {
-        ...ongoingQuiz,
+        ...targetQuiz,
         guesses: [
-          ...ongoingQuiz.guesses,
+          ...notTargetGuesses,
           {
             ...targetGuess,
             guess: guess,
-          } as Guess,
-        ] as Guess[],
-      } as Quiz,
-    ] as Quiz[],
-  } as OnGoingGame)
-  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame
-  console.log("updateOngoingGame", updatedOngoingGame) // guesses: [Array] となっているので直す
+          },
+        ],
+      },
+    ],
+  });
+  const updatedOngoingGame = db.game.getGame(gameId) as OnGoingGame;
+  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
   // emitter.emitParticipantsAnswerStatusUpdated(
   //   updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
   //   gameId,
@@ -190,14 +273,18 @@ const handleGuessAnswer = ({
 };
 
 const startQuiz1 = (gameId: string, io: Server) => {
-  const waitingGame = db.game.getGame(gameId);
-  if (!waitingGame || waitingGame.status !== "WAITING_PARTICIPANTS") return;
-  const ongoingGame = createOngoingGame(waitingGame);
+  const ongoingGame = db.game.getGame(gameId);
+  if (!ongoingGame || ongoingGame.status === "WAITING_PARTICIPANTS") {
+    return console.error(`[Error]: startQuiz1 but was waiting game`);
+  }
+  // const ongoingGame = createOngoingGame(waitingGame);
   db.game.updateOngoingGame({
     ...ongoingGame,
-    quizzes: ongoingGame.quizzes.concat(getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)),
+    quizzes: ongoingGame.quizzes.concat(
+      getRandomQuiz(gameId, ongoingGame.currentQuizNumberOneIndexed + 1)
+    ),
   });
-  const latestOngoingGame = db.game.getGame(gameId) as OnGoingGame // updateOngoingGame しても ongoingGame は更新されないので再取得する
+  const latestOngoingGame = db.game.getGame(gameId) as OnGoingGame; // updateOngoingGame しても ongoingGame は更新されないので再取得する
   emitter.emitQuizStarted(
     getSocketIDsFromParticipants(ongoingGame.participants),
     latestOngoingGame.gameId,
@@ -216,6 +303,8 @@ const getRandomQuiz = (gameId: string, quizNumber: number): Quiz => {
   };
 };
 
-export const getSocketIDsFromParticipants = (participants: Participant[]): string[] => {
+export const getSocketIDsFromParticipants = (
+  participants: Participant[]
+): string[] => {
   return participants.map((p) => p.connectionId).filter((p) => p !== null);
-}
+};
