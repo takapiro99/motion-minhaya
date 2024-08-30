@@ -37,6 +37,7 @@ export const CreateQuizPage: FC = () => {
   const [record, setRecord] = useState<poseDetection.Pose[]>([]);
   const [mode, setMode] = useState<CreateQuizMode>("WITHCAMERA");
   const [answers, setAnswers] = useState<string[]>([]);
+  // eslint-disable-next-line
   const [quizUploading, setQuizUploading] = useState<boolean>(false);
   const [currentPose, setCurrentPose] = useState<
     poseDetection.Pose["keypoints3D"] | null
@@ -49,6 +50,7 @@ export const CreateQuizPage: FC = () => {
     setAnswers([]);
     setQuizUploading(false);
   };
+  console.log(quizUploading, currentPose);
 
   const startRecording = () => {
     setRecording(true);
@@ -350,11 +352,11 @@ export const CreateQuizPage: FC = () => {
 // IK_footR_034
 // TAR_elbowR_035
 
-const logEstimation = (
-  pose: poseDetection.Pose["keypoints3D"],
-  num: number,
-  xyz: "x" | "y" | "z",
-) => {
-  if (!pose) return;
-  console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
-};
+// const logEstimation = (
+//   pose: poseDetection.Pose["keypoints3D"],
+//   num: number,
+//   xyz: "x" | "y" | "z",
+// ) => {
+//   if (!pose) return;
+//   console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
+// };

@@ -18,7 +18,7 @@ import * as posedetection from "@tensorflow-models/pose-detection";
 // import * as scatter from 'scatter-gl';
 
 import * as params from "./params";
-import { CreateQuizMode, TClientQuizInfo } from "../page/CreateQuizPage";
+import { TClientQuizInfo } from "../page/CreateQuizPage";
 
 // #ffffff - White
 // #800000 - Maroon
@@ -168,9 +168,9 @@ export class RendererQuestionToCanvas2d {
    * Draw the keypoints and skeleton on the video.
    * @param poses A list of poses to render.
    */
-  drawResults(poses: posedetection.Pose[], mode: CreateQuizMode) {
+  drawResults(poses: posedetection.Pose[]) {
     for (const pose of poses) {
-      this.drawResult(pose, mode);
+      this.drawResult(pose);
       // console.log(pose.keypoints3D);
     }
   }
@@ -179,7 +179,7 @@ export class RendererQuestionToCanvas2d {
    * Draw the keypoints and skeleton on the video.
    * @param pose A pose with keypoints to render.
    */
-  drawResult(pose: posedetection.Pose, mode: CreateQuizMode) {
+  drawResult(pose: posedetection.Pose) {
     if (pose.keypoints != null) {
       // this.drawKeypoints(pose.keypoints, mode);
       // if (mode === "WITHCAMERA") {

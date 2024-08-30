@@ -1,11 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Canvas, ThreeElements, useFrame } from "@react-three/fiber";
 import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import { useEnvironment } from "@react-three/drei";
 import * as poseDetection from "@tensorflow-models/pose-detection";
-import { Bone, Object3D, Quaternion, Vector3, Vector3Like } from "three";
-import { Coord } from "../utils/modelManipulation";
+import { Bone, Quaternion, Vector3, Vector3Like } from "three";
 
 export const PreviewContainer: React.FC<{
   currentPose: poseDetection.Pose["keypoints3D"] | null;
@@ -99,7 +97,7 @@ export const Preview: React.FC<{
     return quaternion;
   }
 
-  useFrame((state, delta) => {
+  useFrame(() => {
     // https://threejs.org/docs/#api/en/core/Object3D
     if (modelRef.current) {
       // console.log(getBone(12));
@@ -139,9 +137,9 @@ export const Preview: React.FC<{
       // }
     }
   });
-  const envMap = useEnvironment({
-    files: "/gltf/background.hdr",
-  });
+  // const envMap = useEnvironment({
+  //   files: "/gltf/background.hdr",
+  // });
 
   return (
     <>

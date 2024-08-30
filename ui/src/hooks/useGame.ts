@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Game } from "../../../api/src/common/utils/db"
+import { Game } from "../../../api/src/common/models/game"
 
 export type UseGame = {
   game: Game,
@@ -16,7 +16,7 @@ export const useGame = (): UseGame => {
     quizzes: null,
     gameResult: null,
   })
-  
+
   return {
     game: game,
     updateGame: setGame,
