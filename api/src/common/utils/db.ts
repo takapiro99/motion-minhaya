@@ -1,3 +1,4 @@
+import { copy } from "@/api/ws/game";
 import type { OnGoingGame, WaitingParticipantsGame } from "../models/game";
 import { LowSync, MemorySync } from "./lowdb";
 
@@ -21,16 +22,23 @@ export const db = {
       conn.read();
       if (!conn.data) return [];
 
-      return conn.data.games.filter((room) => room.status === "WAITING_PARTICIPANTS");
+      const res = conn.data.games.filter(
+        (room) => room.status === "WAITING_PARTICIPANTS"
+      );
+      return copy(res);
     },
     upsertWaitingGame: (waitingGame: WaitingParticipantsGame) => {
       conn.read();
       if (!conn.data) return [];
 
-      const existingGame = conn.data.games.find((game) => game.gameId === waitingGame.gameId);
+      const existingGame = conn.data.games.find(
+        (game) => game.gameId === waitingGame.gameId
+      );
       if (existingGame) {
         conn.update((data) => {
-          const existingGame = data.games.find((game) => game.gameId === waitingGame.gameId);
+          const existingGame = data.games.find(
+            (game) => game.gameId === waitingGame.gameId
+          );
           if (!existingGame) return;
           existingGame.participants = waitingGame.participants;
         });
@@ -47,36 +55,43 @@ export const db = {
         });
       }
     },
-    getGame: (gameId: string): WaitingParticipantsGame | OnGoingGame | undefined => {
+    getGame: (
+      gameId: string
+    ): WaitingParticipantsGame | OnGoingGame | undefined => {
       conn.read();
       if (!conn.data) return;
       const targetGame = conn.data.games.find((game) => game.gameId === gameId);
       if (!targetGame) return;
-      return targetGame;
+      return copy(targetGame);
     },
     updateOngoingGame: (ongoingGame: OnGoingGame): void => {
       conn.read();
       if (!conn.data) return;
+      const ongoingGameCopy = copy(ongoingGame);
 
       conn.update((data) => {
-        const existingGame = data.games.find((game) => game.gameId === ongoingGame.gameId);
+        const existingGame = data.games.find(
+          (game) => game.gameId === ongoingGameCopy.gameId
+        );
         // if (!existingGame || existingGame.status !== "ONGOING") return; // WAITING_PARTICIPANTS -> ONGOING に遷移できない
         if (!existingGame) return;
-        for (const key of getKeys(ongoingGame)) {
+        for (let key of getKeys(ongoingGameCopy)) {
           switch (key) {
             case "participants":
-              existingGame[key] = ongoingGame[key];
+              existingGame[key] = ongoingGameCopy[key];
               break;
             case "currentQuizNumberOneIndexed":
-              existingGame[key] = ongoingGame[key];
+              existingGame[key] = ongoingGameCopy[key];
               break;
             case "quizzes":
-              existingGame[key] = ongoingGame[key];
+              existingGame[key] = ongoingGameCopy[key];
               break;
             case "gameResult":
-              existingGame[key] = ongoingGame[key];
+              existingGame[key] = ongoingGameCopy[key];
               break;
             case "status":
+              existingGame[key] = ongoingGameCopy[key];
+              break;
             case "gameId":
               break;
             default:
