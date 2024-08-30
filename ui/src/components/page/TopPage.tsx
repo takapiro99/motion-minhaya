@@ -4,6 +4,8 @@ import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
 import { Canvas } from "@react-three/fiber";
 import { TopPagePreview } from "../createQuiz/TopPagePreview";
+import LogoImage from "../../../public/logo.png";
+import ParticleSettings from "../../../public/particles.json?url";
 
 export const TopPage: FC = () => {
   const navigate = useNavigate();
@@ -13,21 +15,20 @@ export const TopPage: FC = () => {
   useLayoutEffect(() => {
     /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
     // @ts-ignore
-    window.particlesJS.load(
-      "particles-js",
-      "public/particles.json",
-      function () {
-        console.log("callback - particles.js config loaded");
-      },
-    );
+    window.particlesJS.load("particles-js", ParticleSettings, function () {
+      console.log("callback - particles.js config loaded");
+    });
   }, []);
+
+  console.log(import.meta.env.BASE_URL);
 
   return (
     <div
       style={{
         position: "relative",
         height: "100dvh",
-        width: "100dvw",
+        width: "100%",
+        maxWidth: "680px",
         background: "#111",
       }}
       ref={parentRef}
@@ -38,15 +39,13 @@ export const TopPage: FC = () => {
           position: "absolute",
           top: 0,
           left: 0,
-          width: "100dvw",
+          width: "100%",
           height: "100dvh",
           display: "flex",
           flexDirection: "column",
-          maxWidth: "680px",
           margin: "0 auto",
-          // backgroundColor: "111",
           justifyContent: "space-around",
-          zIndex: 1,
+          zIndex: 10,
         }}
       >
         <div>&nbsp;</div>
@@ -60,8 +59,9 @@ export const TopPage: FC = () => {
             left: "5px",
             transform: "rotate(-8deg)",
             width: "80%",
+            userSelect: "none",
           }}
-          src="/public/logo.png"
+          src={LogoImage}
           alt="logo"
         />
 
@@ -71,6 +71,7 @@ export const TopPage: FC = () => {
             flexDirection: "column",
             gap: "15px",
             alignItems: "center",
+            zIndex: 100,
           }}
         >
           <Button
@@ -113,7 +114,7 @@ export const TopPage: FC = () => {
           position: "absolute",
           top: "30dvh",
           left: 0,
-          width: "100dvw",
+          width: "100%",
           height: "68dvh",
           zIndex: "8",
           opacity: "0.8",
