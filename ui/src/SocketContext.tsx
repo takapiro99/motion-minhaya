@@ -3,6 +3,11 @@ import { io, Socket } from "socket.io-client";
 import { Game, GameResult, Guess, OnGoingGame, Participant, Quiz, WaitingParticipantsGame } from "../../api/src/common/models/game";
 import { ButtonPressedProps, ClientStatus, GuessAnswerProps, User } from "./domain/type";
 
+
+export const serverOrigin = import.meta.env.DEV
+  ? "localhost:8080"
+  : "https://motion-minhaya-sxmhgfgw6q-an.a.run.app";
+
 type SocketContextType = {
   socket: Socket;
   clientStatus: ClientStatus;
@@ -17,7 +22,7 @@ type SocketContextType = {
   guessAnswer: (guessAnswerProps: GuessAnswerProps) => void;
 };
 
-const socket = io(import.meta.env.SERVER_ORIGIN ?? "localhost:8080");
+const socket = io(serverOrigin);
 
 const ping = () => socket.emit("game", { action: "PING" });
 
