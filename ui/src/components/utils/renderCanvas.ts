@@ -95,6 +95,7 @@ export class RendererCanvas2d {
   drawResults(poses: posedetection.Pose[], mode: CreateQuizMode) {
     for (const pose of poses) {
       this.drawResult(pose, mode);
+      // console.log(pose.keypoints3D);
     }
   }
 
@@ -149,6 +150,8 @@ export class RendererCanvas2d {
 
   drawKeypoint(keypoint: posedetection.Keypoint) {
     if (this.ctx == null) return
+    // console.log(keypoint);
+
     // If score is null, just show the keypoint.
     const score = keypoint.score != null ? keypoint.score : 1;
     const scoreThreshold = this.scoreThreshold || 0;

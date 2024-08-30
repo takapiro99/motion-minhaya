@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { TopPage } from "./components/page/TopPage";
 import { GamePage } from "./components/page/GamePage";
 import { CreateQuizPage } from "./components/page/CreateQuizPage";
-import { RouterProvider } from "react-router-dom"
+import { RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
   {
@@ -17,8 +17,8 @@ const router = createBrowserRouter([
     path: "/create-quiz",
     element: <CreateQuizPage />,
   },
-])
+]);
 
 export const AppRoutes = () => {
-  return <RouterProvider router={router} />
-}
+  return <RouterProvider router={router} />;
+};

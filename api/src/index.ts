@@ -11,7 +11,7 @@ const server = app.listen(env.PORT, () => {
 
 export const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://motion-minhaya-sxmhgfgw6q-an.a.run.app"],
+    origin: ["http://localhost:5173", "https://motion-minhaya-sxmhgfgw6q-an.a.run.app", "https://alien-signal-quiz.web.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -25,7 +25,7 @@ const onCloseSignal = () => {
     logger.info("server closed");
     process.exit();
   });
-  setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after 10s
+  setTimeout(() => process.exit(1), 1000).unref(); // Force shutdown after 10s
 };
 
 process.on("SIGINT", onCloseSignal);

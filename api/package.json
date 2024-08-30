@@ -9,8 +9,9 @@
   "private": true,
   "scripts": {
     "dev": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
+    "start": "tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "build": "tsup",
-    "start": "node dist/index.js",
+    "serve": "node dist/index.js",
     "clean": "rimraf dist coverage",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --fix",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.0.0",
+    "@google-cloud/storage": "^7.12.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "envalid": "^8.0.0",
