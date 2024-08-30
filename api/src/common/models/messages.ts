@@ -19,9 +19,9 @@ export type MotionMinhayaWSClientMessage =
   | {
     action: "BUTTON_PRESSED";
     gameId: string;
-		quizNumber: number;
-		clientId: string;
-		buttonPressedTimestamp: number;
+    quizNumber: number;
+    clientId: string;
+    buttonPressedTimestamp: number;
   }
   | {
     action: "GUESS_ANSWER";
@@ -71,8 +71,8 @@ export type MotionMinhayaWSServerMessage =
     gameId: string;
     quizNumber: number;
     motionId: string;
-    motionStartTimestamp: string;
-    answerFinishTimestamp: string;
+    motionStartTimestamp: number;
+    answerFinishTimestamp: number;
   }
   | {
     event: "PARTICIPANTS_ANSWER_STATUS_UPDATED"

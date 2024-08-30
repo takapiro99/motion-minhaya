@@ -105,20 +105,25 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
       newWaitingGame,
       io
     );
+    console.log(newWaitingGame);
     if (
       newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME
     ) {
       // start game
-      console.log(`[waitingRoom] 4人集まったのでゲームを開始`);
+      console.log(`[waitingRoom] ${constants.PARTICIPANTS_PER_GAME}人集まったのでゲームを開始`);
       db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
-      emitter.emitGameStarted(
-        newWaitingGame.participants
-          .map((p) => p.connectionId)
-          .filter((p) => p !== null),
-        newWaitingGame,
-        io
-      );
-      startQuiz1(newWaitingGame.gameId, io);
+      setTimeout(() => {
+        emitter.emitGameStarted(
+          newWaitingGame.participants
+            .map((p) => p.connectionId)
+            .filter((p) => p !== null),
+          newWaitingGame,
+          io
+        );
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS)
+      setTimeout(() => {
+        startQuiz1(newWaitingGame.gameId, io);
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS + constants.START_GAME_TO_START_QUIZ1_MS)
     }
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
@@ -262,7 +267,7 @@ const handleGuessAnswer = ({
       `[Error]: hangleGuessAnswer but target guess of quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${guess}`
     );
   }
-  db.game.updateOngoingGame({
+  const updated: OnGoingGame = {
     ...ongoingGame,
     quizzes: [
       ...notTargetQuizzes,
@@ -277,17 +282,18 @@ const handleGuessAnswer = ({
         ],
       },
     ],
-  });
-  const updatedOngoingGame = db.game.getGame(gameId);
-  if (!updatedOngoingGame || updatedOngoingGame.status !== "ONGOING") {
-    return console.log("aaa")
   }
-  console.log("updateOngoingGame", updatedOngoingGame); // guesses: [Array] となっているので直す
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+  console.log(JSON.stringify(updated.quizzes[0].guesses));
+
+
+  db.game.updateOngoingGame(updated);
   emitter.emitParticipantsAnswerStatusUpdated(
-    updatedOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    updated.participants.map(p => p.connectionId).filter((p) => p !== null),
     gameId,
     quizNumber,
-    updatedOngoingGame?.quizzes[quizNumber].guesses,
+    updated.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
     io,
   )
 };
