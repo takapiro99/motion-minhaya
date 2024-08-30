@@ -7,15 +7,16 @@ const useStyles = createUseStyles({
     display: "flex",
     justifyContent: "center",
     height: "100%",
-    width: "100%"
+    width: "100%",
   },
   appChild: {
     maxWidth: "680px",
+    width: "100%",
   },
-})
+});
 
 function App() {
-  const classes = useStyles()
+  const classes = useStyles();
   return (
     <div className={classes.app}>
       <div className={classes.appChild}>

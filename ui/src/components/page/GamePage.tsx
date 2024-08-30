@@ -1,25 +1,33 @@
-import { FC, useContext } from "react"
-import { NameInputing } from "../game/NameInputing"
-import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable"
-import { ParticipantsWaiting } from "../game/ParticipantsWaiting"
-// import { ParticipantsMatched } from "../game/ParticipantsMatched"
-// import { GameStarted } from "../game/GameStarted"
-import { GameOngoing } from "../game/GameOngoing"
-import { GameFinished } from "../game/GameFinished"
-import { SocketContext } from "../../SocketContext"
-import { ToTopPageButton } from "../utils/ToTopPageButton"
-import { WaitingRoomUnjoinable } from "../game/WaitingRoomUnjoinable"
+import { FC, useContext, useLayoutEffect } from "react";
+import { NameInputing } from "../game/NameInputing";
+import { ConfirmingWaitingRoomJoinable } from "../game/ConfirmingWaitingRoomJoinable";
+import { ParticipantsWaiting } from "../game/ParticipantsWaiting";
+import { GameOngoing } from "../game/GameOngoing";
+import { GameFinished } from "../game/GameFinished";
+import { SocketContext } from "../../SocketContext";
+import { WaitingRoomUnjoinable } from "../game/WaitingRoomUnjoinable";
+import { Navigate } from "react-router-dom";
 
 export const GamePage: FC = () => {
-  const { clientStatus } = useContext(SocketContext)
+  const { clientStatus } = useContext(SocketContext);
+
+  if (clientStatus === "OUT_OF_GAME") {
+    alert("宇宙の力によって不正なステータスとなりました。トップに戻ります！");
+    return <Navigate replace to="/" />;
+  }
 
   return (
-    <div>
-      <ToTopPageButton />
-      <div>This is a game page.</div>
-      {clientStatus === "OUT_OF_GAME" && <div>異常な clientStatus です。TopPage に戻ってください。</div>}
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        // background: "#111",
+      }}
+    >
       {clientStatus === "NAME_INPUTING" && <NameInputing />}
-      {clientStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && <ConfirmingWaitingRoomJoinable />}
+      {clientStatus === "CONFIRMING_WAITING_ROOM_JOINABLE" && (
+        <ConfirmingWaitingRoomJoinable />
+      )}
       {clientStatus === "WAITING_ROOM_UNJOINABLE" && <WaitingRoomUnjoinable />}
       {clientStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
       {/* {clientStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />} */}
@@ -27,5 +35,5 @@ export const GamePage: FC = () => {
       {clientStatus === "GAME_ONGOING" && <GameOngoing />}
       {clientStatus === "GAME_FINISIED" && <GameFinished />}
     </div>
-  )
-}
+  );
+};
