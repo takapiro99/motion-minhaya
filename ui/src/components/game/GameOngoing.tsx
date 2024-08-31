@@ -1,4 +1,4 @@
-import { FC, useContext } from "react";
+import { FC, useContext, useEffect } from "react";
 import { Button } from "semantic-ui-react";
 import { SocketContext } from "../../SocketContext";
 import { useQuizStatus } from "../../hooks/useQuizStatus";
@@ -8,6 +8,10 @@ import { ParticipantsMatched } from "./ParticipantsMatched";
 import { GameThinking } from "./GameThinking";
 import { GameAnswering } from "./GameAnswering";
 import { QuizResult } from "./QuizResult";
+import useSound from "use-sound";
+import buttonPressedSound from "../../../public/music/buttonPressed.mp3";
+import lastTenSeconds from "../../../public/music/lastTenSeconds.mp3";
+import timeout from "../../../public/music/timeout.mp3";
 
 // type GameOngoingProps = {}
 
@@ -26,8 +30,16 @@ export const GameOngoing: FC = () => {
   const { leftTime } = useCountdown({
     answerFinishTimestamp: currentQuiz?.answerFinishTimestamp ?? null,
   });
+  const [playButtonPressedSound] = useSound(buttonPressedSound, { volume: 0.3 });
+  const [playLastTenSeconds] = useSound(lastTenSeconds, { volume: 0.3 });
+  const [playTimeout] = useSound(timeout, { volume: 0.3 });
+
+  useEffect(() => {
+    if (leftTime === 10) playLastTenSeconds()
+  }, [leftTime])
 
   const handleAnswerButtonClick = () => {
+    playButtonPressedSound();
     updateQuizStatus("ANSWERING");
     buttonPressed({
       gameId: game.gameId as string,
@@ -82,6 +94,7 @@ export const GameOngoing: FC = () => {
   }
 
   if (quizStatus === "IN_RESULT") {
+    playTimeout()
     if (currentQuiz) return <QuizResult quiz={currentQuiz} />;
   }
 
