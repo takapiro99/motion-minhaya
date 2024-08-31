@@ -104,7 +104,7 @@ export class RendererQuestionToCanvas2d {
     const wScale = this.canvasWidth / poseXMax;
     const hScale = this.canvasHeight / poseYMax;
     const scale = Math.min(wScale, hScale);
-    console.log(poseXMax, poseYMax, this.canvasHeight, this.canvasWidth, scale);
+    // console.log(poseXMax, poseYMax, this.canvasHeight, this.canvasWidth, scale);
     const centerizeOffsetX = (this.canvasWidth - poseXMax * scale) / 2;
     const centerizeOffsetY = (this.canvasHeight - poseYMax * scale) / 2;
 
@@ -212,11 +212,12 @@ export class RendererQuestionToCanvas2d {
     // const writeOnly = [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
     // const writeOnly = [2, 5, 11,  25, 26, 27, 28];
 
-    const writeOnly = this.currentPlay <= 0
-      ? [2, 5, 11, 25, 26, 27, 28]
-      : this.currentPlay <= 1
-      ? [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]
-      : [...Array(50)].map((_, i) => i);
+    const writeOnly =
+      this.currentPlay <= 0
+        ? [2, 5, 11, 25, 26, 27, 28]
+        : this.currentPlay <= 1
+          ? [2, 5, 11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28]
+          : [...Array(50)].map((_, i) => i);
 
     for (const i of keypointInd.middle) {
       if (writeOnly.includes(i)) {

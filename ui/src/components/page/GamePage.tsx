@@ -13,11 +13,29 @@ import onGoingGameBGM from "../../../public/music/onGoingGame.mp3";
 
 export const GamePage: FC = () => {
   const { clientStatus } = useContext(SocketContext);
-  const [playWaitingRoomAndGameResultBGM, {stop: stopWaitingRoomAndGameResultBGM}] = useSound(waitingRoomAndGameResultBGM, { volume: 0.3, loop: true });
+  const [
+    playWaitingRoomAndGameResultBGM,
+    { stop: stopWaitingRoomAndGameResultBGM },
+  ] = useSound(waitingRoomAndGameResultBGM, { volume: 0.3, loop: true });
   useEffect(() => {
     playWaitingRoomAndGameResultBGM();
+    return () => {
+      stopWaitingRoomAndGameResultBGM();
+    };
   }, [playWaitingRoomAndGameResultBGM]);
-  const [playOnGoingGameBGM, {stop: stopOnGoingGameBGM}] = useSound(onGoingGameBGM, { volume: 0.3, loop: true });
+  const [playOnGoingGameBGM, { stop: stopOnGoingGameBGM }] = useSound(
+    onGoingGameBGM,
+    { volume: 0.3, loop: true },
+  );
+
+  useEffect(() => {
+    if (clientStatus === "GAME_ONGOING") {
+      playOnGoingGameBGM();
+    }
+    return () => {
+      stopOnGoingGameBGM();
+    };
+  }, [clientStatus]);
 
   if (clientStatus === "OUT_OF_GAME") {
     alert("宇宙の力によって不正なステータスとなりました。トップに戻ります！");
@@ -44,15 +62,17 @@ export const GamePage: FC = () => {
       {clientStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
       {/* {clientStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />} */}
       {/* {clientStatus === "GAME_STARTED" && <GameStarted />} */}
-      {clientStatus === "GAME_ONGOING" && (() => {
-        stopWaitingRoomAndGameResultBGM()
-        playOnGoingGameBGM()
-        return <GameOngoing />
-      })()}
-      {clientStatus === "GAME_FINISIED" && (() => {
-        stopOnGoingGameBGM()
-        return <GameFinished />
-      })()}
+      {clientStatus === "GAME_ONGOING" &&
+        (() => {
+          stopWaitingRoomAndGameResultBGM();
+          // playOnGoingGameBGM();
+          return <GameOngoing />;
+        })()}
+      {clientStatus === "GAME_FINISIED" &&
+        (() => {
+          stopOnGoingGameBGM();
+          return <GameFinished />;
+        })()}
     </div>
   );
 };

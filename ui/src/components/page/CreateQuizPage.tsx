@@ -50,7 +50,7 @@ export const CreateQuizPage: FC = () => {
     setAnswers([]);
     setQuizUploading(false);
   };
-  console.log(quizUploading, currentPose);
+  // console.log(quizUploading, currentPose);
 
   const startRecording = () => {
     setRecording(true);
@@ -58,7 +58,7 @@ export const CreateQuizPage: FC = () => {
 
     const siID = setInterval(() => {
       setRemainingSeconds((prevSeconds) => {
-        console.log(prevSeconds);
+        // console.log(prevSeconds);
         if (prevSeconds === 1) {
           setRecording(false);
           clearInterval(siID);

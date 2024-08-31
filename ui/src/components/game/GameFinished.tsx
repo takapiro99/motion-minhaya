@@ -16,9 +16,12 @@ export const GameFinished: FC = () => {
   const navigate = useNavigate();
 
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play, {stop}] = useSound(MainBGM, { volume: 0.3, loop: true });
+  const [play, { stop }] = useSound(MainBGM, { volume: 0.3, loop: true });
   useEffect(() => {
     play();
+    return () => {
+      stop();
+    };
   }, [play]);
 
   useLayoutEffect(() => {
@@ -99,7 +102,7 @@ export const GameFinished: FC = () => {
           >
             <Button
               onClick={() => {
-                stop()
+                stop();
                 updateClientStatus("OUT_OF_GAME");
                 navigate("/");
               }}

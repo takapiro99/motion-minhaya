@@ -19,13 +19,13 @@ export const GameThinking: React.FC<{
   const { game } = useContext(SocketContext);
 
   useEffect(() => {
-    // const currentQuiz = game.quizzes?.find(
-    //   (quiz) => quiz.quizNumber === game.currentQuizNumberOneIndexed,
-    // );
+    const currentQuiz = game.quizzes?.find(
+      (quiz) => quiz.quizNumber === game.currentQuizNumberOneIndexed,
+    );
     const f = async () => {
       try {
         const res = await fetch(
-          `${serverOrigin}/api/quiz/2ab227a9-4bf9-4944-8859-326c675cce71`,
+          `${serverOrigin}/api/quiz/${currentQuiz?.motionId}`,
           {
             method: "GET",
           },
