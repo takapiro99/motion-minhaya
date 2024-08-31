@@ -13,7 +13,7 @@ export const TopPage: FC = () => {
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play] = useSound(MainBGM, { volume: 0.3, loop: true });
+  const [play, {stop}] = useSound(MainBGM, { volume: 0.3, loop: true });
   useEffect(() => {
     play();
   }, [play]);
@@ -80,6 +80,7 @@ export const TopPage: FC = () => {
         >
           <Button
             onClick={() => {
+              stop()
               updateClientStatus("NAME_INPUTING");
               navigate("/game");
             }}
@@ -106,7 +107,10 @@ export const TopPage: FC = () => {
               fontWeight: "normal",
               width: "73%",
             }}
-            onClick={() => navigate("/create-quiz")}
+            onClick={() => {
+              stop()
+              navigate("/create-quiz")}
+            }
           >
             クイズをつくる
           </Button>
