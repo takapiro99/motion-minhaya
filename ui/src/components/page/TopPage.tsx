@@ -8,12 +8,82 @@ import LogoImage from "../../../public/logo.png";
 import ParticleSettings from "../../../public/particles.json?url";
 import useSound from "use-sound";
 import MainBGM from "../../../public/music/topPageAndStartGameResult.mp3?url";
+import { createUseStyles } from "react-jss";
+
+const useStyles = createUseStyles({
+  topPage: {
+    position: "relative",
+    height: "100dvh",
+    width: "100%",
+    maxWidth: "680px",
+    background: "#111",
+  },
+  componentsContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100dvh",
+    display: "flex",
+    flexDirection: "column",
+    margin: "0 auto",
+    justifyContent: "space-around",
+    zIndex: 10,
+  },
+  logo: {
+    position: "absolute",
+    display: "inline-block",
+    top: "5px",
+    left: "5px",
+    transform: "rotate(-8deg)",
+    width: "80%",
+    userSelect: "none",
+  },
+  buttonsContainer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+    alignItems: "center",
+    zIndex: 100,
+  },
+  toGameButton: {
+    backgroundColor: "#A538EE !important",
+    color: "white !important",
+    borderRadius: "40px !important",
+    border: "3px solid white !important",
+    padding: "20px 30px !important",
+    fontWeight: "normal !important",
+    width: "73% !important",
+  },
+  toCreateQuizButton: {
+    backgroundColor: "white !important",
+    color: "#A538EE !important",
+    borderRadius: "40px !important",
+    border: "2px solid #A538EE !important",
+    padding: "10px 30px !important",
+    fontWeight: "normal !important",
+    width: "73% !important",
+  },
+  canvasContainer: {
+    position: "absolute",
+    top: "30dvh",
+    left: 0,
+    width: "100%",
+    height: "68dvh",
+    zIndex: "8",
+    opacity: "0.8",
+  },
+  canvas: {
+    background: "transparent",
+  }
+});
 
 export const TopPage: FC = () => {
+  const classes = useStyles();
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play, {stop}] = useSound(MainBGM, { volume: 0.3, loop: true });
+  const [play, {stop}] = useSound(MainBGM, { volume: 0, loop: true }); // MEMO: うるさいので一旦ミュートにしている
   useEffect(() => {
     play();
   }, [play]);
@@ -28,56 +98,21 @@ export const TopPage: FC = () => {
 
   return (
     <div
-      style={{
-        position: "relative",
-        height: "100dvh",
-        width: "100%",
-        maxWidth: "680px",
-        background: "#111",
-      }}
+      className={classes.topPage}
       ref={parentRef}
       id="particles-js"
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100dvh",
-          display: "flex",
-          flexDirection: "column",
-          margin: "0 auto",
-          justifyContent: "space-around",
-          zIndex: 10,
-        }}
-      >
+      <div className={classes.componentsContainer}>
         <div>&nbsp;</div>
         <div>&nbsp;</div>
         <div>&nbsp;</div>
         <img
-          style={{
-            position: "absolute",
-            display: "inline-block",
-            top: "5px",
-            left: "5px",
-            transform: "rotate(-8deg)",
-            width: "80%",
-            userSelect: "none",
-          }}
+          className={classes.logo}
           src={LogoImage}
           alt="logo"
         />
 
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px",
-            alignItems: "center",
-            zIndex: 100,
-          }}
-        >
+        <div className={classes.buttonsContainer}>
           <Button
             onClick={() => {
               stop()
@@ -85,28 +120,12 @@ export const TopPage: FC = () => {
               navigate("/game");
             }}
             size="huge"
-            style={{
-              backgroundColor: "#A538EE",
-              color: "white",
-              borderRadius: "40px",
-              border: "3px solid white",
-              padding: "20px 30px",
-              fontWeight: "normal",
-              width: "73%",
-            }}
+            className={classes.toGameButton}
           >
             みんなでクイズをとく
           </Button>
           <Button
-            style={{
-              backgroundColor: "white",
-              color: "#A538EE",
-              borderRadius: "40px",
-              border: "2px solid #A538EE",
-              padding: "10px 30px",
-              fontWeight: "normal",
-              width: "73%",
-            }}
+            className={classes.toCreateQuizButton}
             onClick={() => {
               stop()
               navigate("/create-quiz")}
@@ -116,20 +135,9 @@ export const TopPage: FC = () => {
           </Button>
         </div>
       </div>
-      <div
-        style={{
-          // border: "2px solid green",
-          position: "absolute",
-          top: "30dvh",
-          left: 0,
-          width: "100%",
-          height: "68dvh",
-          zIndex: "8",
-          opacity: "0.8",
-        }}
-      >
+      <div className={classes.canvasContainer}>
         <Canvas
-          style={{ background: "transparent" }}
+          className={classes.canvas}
           camera={{ position: [0, 2.8, 0.4] }}
         >
           <TopPagePreview />
