@@ -10,13 +10,23 @@ import { Navigate } from "react-router-dom";
 import useSound from "use-sound";
 import waitingRoomAndGameResultBGM from "../../../public/music/waitingRoomAndGameResult.mp3";
 import onGoingGameBGM from "../../../public/music/onGoingGame.mp3";
+import { createUseStyles } from "react-jss";
+
+const useStyles = createUseStyles({
+  gamePage: {
+    height: "100%",
+    width: "100%",
+    // background: "#111",
+  },
+});
 
 export const GamePage: FC = () => {
+  const classes = useStyles();
   const { clientStatus } = useContext(SocketContext);
   const [
     playWaitingRoomAndGameResultBGM,
     { stop: stopWaitingRoomAndGameResultBGM },
-  ] = useSound(waitingRoomAndGameResultBGM, { volume: 0.3, loop: true });
+  ] = useSound(waitingRoomAndGameResultBGM, { volume: 0, loop: true }); // MEMO: うるさいので一旦ミュートにしている (元々は volume: 0.3)
   useEffect(() => {
     playWaitingRoomAndGameResultBGM();
     return () => {
@@ -25,7 +35,7 @@ export const GamePage: FC = () => {
   }, [playWaitingRoomAndGameResultBGM]);
   const [playOnGoingGameBGM, { stop: stopOnGoingGameBGM }] = useSound(
     onGoingGameBGM,
-    { volume: 0.3, loop: true },
+    { volume: 0, loop: true }, // MEMO: うるさいので一旦ミュートにしている (元々は volume: 0.3)
   );
 
   useEffect(() => {
@@ -43,13 +53,7 @@ export const GamePage: FC = () => {
   }
 
   return (
-    <div
-      style={{
-        height: "100%",
-        width: "100%",
-        // background: "#111",
-      }}
-    >
+    <div className={classes.gamePage}>
       {clientStatus === "NAME_INPUTING" && <NameInputing />}
 
       {/* これは実質ない */}
