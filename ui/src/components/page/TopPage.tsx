@@ -83,7 +83,7 @@ export const TopPage: FC = () => {
   const navigate = useNavigate();
   const { updateClientStatus } = useContext(SocketContext);
   const parentRef = useRef<HTMLDivElement>(null);
-  const [play, {stop}] = useSound(MainBGM, { volume: 0, loop: true }); // MEMO: うるさいので一旦ミュートにしている
+  const [play, {stop}] = useSound(MainBGM, { volume: 0, loop: true }); // MEMO: うるさいので一旦ミュートにしている (元々は volume: 0.3)
   useEffect(() => {
     play();
   }, [play]);
