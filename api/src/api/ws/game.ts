@@ -62,7 +62,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
   // 空きがあればいれて、保存する
   // 追加されたよーというイベントを投げる
   // 4人だったらゲームを始める処理を呼ぶ
-  const waitingRooms = db.game.getWaitingRooms();
+  const waitingRooms = db.game.getWaitingGames();
 
   if (waitingRooms.length === 0) {
     // create new Game

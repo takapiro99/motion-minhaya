@@ -19,27 +19,25 @@ export const wsRoutes = (io: Server) => {
 const handleDisconnectConnection = (socket: Socket, io: Server) => {
   console.log(`${socket.id} disconnected`);
   // 部屋から抜ける処理
-  const rooms = db.game.getWaitingRooms();
-  const inWaitingRoom = rooms.some((room) =>
-    room.participants.some((participant) => participant.connectionId === socket.id),
+  const waitingGames = db.game.getWaitingGames();
+  const targetGame = waitingGames.find((game) =>
+    game.participants.some(
+      (participant) => participant.connectionId === socket.id
+    )
   );
-  if (inWaitingRoom) {
-    const targetRoom = rooms.find((room) =>
-      room.participants.some((participant) => participant.connectionId === socket.id),
-    );
-    if (!targetRoom) return;
-    const newParticipants = copy(targetRoom).participants.map((participant) => {
-      if (participant.connectionId === socket.id) return null
-      return participant;
-    }).filter((participant) => participant !== null);
-    const newRoom = { ...targetRoom, participants: newParticipants };
-    console.log(`${socket.id} successfully left from waiting room. gameId: ${targetRoom.gameId}`);
-    db.game.upsertWaitingGame(newRoom);
-    emitter.emitWaitingRoomUpdated(
-      newRoom.participants.map((p) => p.connectionId).filter((p) => p !== null),
-      newRoom,
-      io
-    );
-  }
+  if (!targetGame) return;
+  const updatedParticipants = copy(targetGame).participants.filter(
+    (participant) => participant.connectionId !== socket.id
+  );
+  const updatedGame = { ...targetGame, participants: updatedParticipants };
+  console.log(
+    `${socket.id} successfully left from waiting room. gameId: ${targetGame.gameId}`
+  );
+  db.game.upsertWaitingGame(updatedGame);
+  emitter.emitWaitingRoomUpdated(
+    updatedGame.participants.map((p) => p.connectionId).filter((p) => p !== null),
+    updatedGame,
+    io
+  );
   // TODO: ゲーム中の場合に抜ける処理
 };

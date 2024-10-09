@@ -18,7 +18,7 @@ conn.read();
 
 export const db = {
   game: {
-    getWaitingRooms: (): WaitingParticipantsGame[] => {
+    getWaitingGames: (): WaitingParticipantsGame[] => {
       conn.read();
       if (!conn.data) return [];
 
