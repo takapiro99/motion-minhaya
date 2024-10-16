@@ -1,7 +1,6 @@
-import { Storage } from '@google-cloud/storage';
+import { Storage } from "@google-cloud/storage";
 
-const bucketName = 'motion-minhaya-motion';
-
+const bucketName = "motion-minhaya-motion";
 
 export type QuizInfo = {
   quizID: string;
@@ -17,30 +16,22 @@ const bucket = storage.bucket(bucketName);
 
 export const storageAPI = {
   uploadNewQuiz: async (data: QuizInfo) => {
-    try {
-      // BlobとしてJSONデータを作成
-      const blob = Buffer.from(JSON.stringify(data));
-
-      // アップロード先のファイル名
-      const fileName = `motion/${data.quizID}.json`;
-      const file = bucket.file(fileName);
-
-      // GCSにBlobをアップロード
-      await file.save(blob, {
-        contentType: 'application/json',
-      });
-    } catch (error) {
-      return console.error(error);
-    }
+    const blob = Buffer.from(JSON.stringify(data));
+    const fileName = `motion/${data.quizID}.json`;
+    const file = bucket.file(fileName);
+    await file.save(blob, { contentType: "application/json" });
   },
-  listAllQuizzes: async () => {
+
+  listAllQuizzes: async (): Promise<string[] | null> => {
     try {
-      const [files] = await bucket.getFiles({ prefix: 'motion/' });
+      const [files] = await bucket.getFiles({ prefix: "motion/" });
       return files.map((file) => file.name);
     } catch (error) {
-      return console.error(error);
+      console.error(error);
+      return null;
     }
   },
+
   getQuizById: async (quizID: string): Promise<QuizInfo | null> => {
     try {
       const file = bucket.file(`motion/${quizID}.json`);
@@ -48,10 +39,7 @@ export const storageAPI = {
       return JSON.parse(content.toString());
     } catch (error) {
       console.error(error);
-      return null
+      return null;
     }
-  }
-}
-
-
-
+  },
+};

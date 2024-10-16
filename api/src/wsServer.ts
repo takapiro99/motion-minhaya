@@ -35,7 +35,9 @@ const handleDisconnectConnection = (socket: Socket, io: Server) => {
   );
   db.game.upsertWaitingGame(updatedGame);
   emitter.emitWaitingRoomUpdated(
-    updatedGame.participants.map((p) => p.connectionId).filter((p) => p !== null),
+    updatedGame.participants
+      .map((p) => p.connectionId)
+      .filter((p) => p !== null),
     updatedGame,
     io
   );

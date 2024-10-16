@@ -34,7 +34,6 @@ export const gameHandler = (
       return handleEnterWaitingRoom(socket, body.name, io);
     case "BUTTON_PRESSED":
       return handleButtonPressed({
-        // socket,
         gameId: body.gameId,
         quizNumber: body.quizNumber,
         clientId: body.clientId,
@@ -59,12 +58,9 @@ const handlePingWithAck = (socket: Socket, message: string) =>
   emitter.emitPongWithAck(socket, message);
 
 const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
-  // 空きがあればいれて、保存する
-  // 追加されたよーというイベントを投げる
-  // 4人だったらゲームを始める処理を呼ぶ
-  const waitingRooms = db.game.getWaitingGames();
+  const waitingGames = db.game.getWaitingGames();
 
-  if (waitingRooms.length === 0) {
+  if (waitingGames.length === 0) {
     // create new Game
     const gameID = v4();
     const clientId = v4();
@@ -87,10 +83,10 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
     console.log(
       `[waitingRoom] 一人目の待機者。gameID: ${gameID}, name: ${name}`
     );
-  } else if (waitingRooms.length === 1) {
+  } else if (waitingGames.length === 1) {
     // join existing Game
     const clientId = v4();
-    const newWaitingGame = copy(waitingRooms[0]);
+    const newWaitingGame = copy(waitingGames[0]);
     newWaitingGame.participants.push({
       connectionId: socket.id,
       clientId: clientId,
@@ -106,12 +102,13 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
       newWaitingGame,
       io
     );
-    console.log(newWaitingGame);
     if (
       newWaitingGame.participants.length === constants.PARTICIPANTS_PER_GAME
     ) {
       // start game
-      console.log(`[waitingRoom] ${constants.PARTICIPANTS_PER_GAME}人集まったのでゲームを開始`);
+      console.log(
+        `[waitingRoom] ${constants.PARTICIPANTS_PER_GAME}人集まったのでゲームを開始`
+      );
       db.game.updateOngoingGame(createOngoingGame(newWaitingGame));
       setTimeout(() => {
         emitter.emitGameStarted(
@@ -121,10 +118,10 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
           newWaitingGame,
           io
         );
-      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS)
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS);
       setTimeout(() => {
         startNewQuiz(newWaitingGame.gameId, io);
-      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS + constants.START_GAME_TO_START_QUIZ1_MS)
+      }, constants.PARTICIPANTS_GATHERING_START_GAME_MS + constants.START_GAME_TO_START_QUIZ1_MS);
     }
   } else {
     emitter.emitWaitingRoomUnjoinable(socket);
@@ -140,13 +137,12 @@ type handleButtonPressedProps = {
 };
 
 const handleButtonPressed = ({
-  // socket,
   gameId,
   quizNumber,
   clientId,
   buttonPressedTimestamp,
 }: handleButtonPressedProps) => {
-  const ongoingGame = db.game.getGame(gameId); // as OnGoingGame
+  const ongoingGame = db.game.getGame(gameId);
   if (!ongoingGame || ongoingGame.status !== "ONGOING") {
     return console.error(`[Error] handleButtonPressedでongoingじゃないよ？`);
   }
@@ -190,8 +186,8 @@ const handleButtonPressed = ({
       guess: null,
       similarityPoint: -1, // 類似度点数
       quizPoint: -1, // この問題で得た点数
-    }
-  ]
+    },
+  ];
 
   const newOngoingGame: OnGoingGame = {
     ...ongoingGame,
@@ -201,22 +197,24 @@ const handleButtonPressed = ({
         ...targetQuiz,
         guesses: newGuesses,
       },
-    ]
+    ],
   };
 
   db.game.updateOngoingGame(newOngoingGame);
 
   emitter.emitParticipantsAnswerStatusUpdated(
-    newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    newOngoingGame.participants
+      .map((p) => p.connectionId)
+      .filter((p) => p !== null),
     gameId,
     quizNumber,
     newGuesses,
-    io,
-  )
+    io
+  );
 };
 
 type handleGuessAnswerProps = {
-  socket: Socket,
+  socket: Socket;
   clientId: string;
   gameId: string;
   quizNumber: number;
@@ -232,7 +230,9 @@ const handleGuessAnswer = async ({
 }: handleGuessAnswerProps) => {
   const ongoingGame = db.game.getGame(gameId);
   if (!ongoingGame || ongoingGame.status !== "ONGOING") {
-    return console.error(`[Error]: handleGuessAnswer but no ongoingGame ${clientId}, ${gameId}, ${quizNumber}, ${guess}`);
+    return console.error(
+      `[Error]: handleGuessAnswer but no ongoingGame ${clientId}, ${gameId}, ${quizNumber}, ${guess}`
+    );
   }
   const targetQuiz = ongoingGame.quizzes.find(
     (quiz) => quiz.quizNumber === quizNumber
@@ -258,19 +258,19 @@ const handleGuessAnswer = async ({
     );
   }
 
-
-
   let newGuesses = [
     ...notTargetGuesses,
     {
       ...targetGuess,
       guess: guess,
     },
-  ]
+  ];
   // if finished?
-  const everyoneAnswered = newGuesses.length === constants.PARTICIPANTS_PER_GAME &&
-    newGuesses.filter(g => g.connectionId !== null)
-      .every((guess) => guess.guess !== null)
+  const everyoneAnswered =
+    newGuesses.length === constants.PARTICIPANTS_PER_GAME &&
+    newGuesses
+      .filter((g) => g.connectionId !== null)
+      .every((guess) => guess.guess !== null);
   let motion: QuizInfo | null = null;
   if (everyoneAnswered) {
     motion = await storageAPI.getQuizById(targetQuiz.motionId);
@@ -278,20 +278,19 @@ const handleGuessAnswer = async ({
       return console.error(`[Error]: handleGuessAnswer but motion not found`);
     }
     newGuesses = copy(newGuesses).map((guess) => {
-      if (!motion) return guess
+      if (!motion) return guess;
       const correct = motion.answers.includes(guess.guess ?? "___");
-      const pressedOrder = (newGuesses
-        .sort((a, b) => b.buttonPressedTimeMs - a.buttonPressedTimeMs)
-        .findIndex((g) => g.clientId === guess.clientId) + 1)
+      const pressedOrder =
+        newGuesses
+          .sort((a, b) => b.buttonPressedTimeMs - a.buttonPressedTimeMs)
+          .findIndex((g) => g.clientId === guess.clientId) + 1;
 
       return {
         ...guess,
         similarityPoint: correct ? 1 : 0,
         quizPoint: correct ? Math.max((3 - pressedOrder) * 10, 10) : 0,
       };
-    }
-    );
-
+    });
   }
   const newOngoingGame: OnGoingGame = {
     ...ongoingGame,
@@ -299,7 +298,7 @@ const handleGuessAnswer = async ({
       ...notTargetQuizzes,
       {
         ...targetQuiz,
-        guesses: newGuesses
+        guesses: newGuesses,
       },
     ],
   };
@@ -310,9 +309,12 @@ const handleGuessAnswer = async ({
     // announce results
     setTimeout(() => {
       emitter.quizResult(
-        newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+        newOngoingGame.participants
+          .map((p) => p.connectionId)
+          .filter((p) => p !== null),
         gameId,
-        newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
+        newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)
+          ?.guesses ?? [],
         newOngoingGame.gameResult,
         io,
         motion?.answers ?? []
@@ -320,26 +322,31 @@ const handleGuessAnswer = async ({
     }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS);
 
     // go next quiz or final result
-    if (newOngoingGame.currentQuizNumberOneIndexed === constants.NUMBER_OF_QUIZZES) {
+    if (
+      newOngoingGame.currentQuizNumberOneIndexed === constants.NUMBER_OF_QUIZZES
+    ) {
       setTimeout(() => {
         emitter.gameResult(
-          newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+          newOngoingGame.participants
+            .map((p) => p.connectionId)
+            .filter((p) => p !== null),
           gameId,
           newOngoingGame.participants.map((p) => {
             return {
               ...p,
               gamePoint: newOngoingGame.quizzes.reduce((acc, quiz) => {
-                const guess = quiz.guesses.find((g) => g.clientId === p.clientId);
+                const guess = quiz.guesses.find(
+                  (g) => g.clientId === p.clientId
+                );
                 if (!guess) return acc;
                 return acc + guess.quizPoint;
-              }
-                , 0)
-            }
+              }, 0),
+            };
           }),
           io
         );
       }, constants.ANSWERS_GATHERING_TO_QUIZ_RESULT_MS + constants.QUIZ_RESULT_TO_NEXT_QUIZ_MS);
-      return
+      return;
     } else {
       // go to next quiz
       setTimeout(() => {
@@ -348,21 +355,26 @@ const handleGuessAnswer = async ({
     }
   } else {
     emitter.emitParticipantsAnswerStatusUpdated(
-      newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+      newOngoingGame.participants
+        .map((p) => p.connectionId)
+        .filter((p) => p !== null),
       gameId,
       quizNumber,
       newGuesses,
-      io,
-    )
+      io
+    );
   }
 
   emitter.emitParticipantsAnswerStatusUpdated(
-    newOngoingGame.participants.map(p => p.connectionId).filter((p) => p !== null),
+    newOngoingGame.participants
+      .map((p) => p.connectionId)
+      .filter((p) => p !== null),
     gameId,
     quizNumber,
-    newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ?? [],
-    io,
-  )
+    newOngoingGame.quizzes.find((q) => q.quizNumber === quizNumber)?.guesses ??
+      [],
+    io
+  );
 };
 
 const shuffleArray = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
@@ -371,9 +383,9 @@ const startNewQuiz = async (gameId: string, io: Server) => {
   if (!ongoingGame || ongoingGame.status === "WAITING_PARTICIPANTS") {
     return console.error(`[Error]: startQuiz1 but was waiting game`);
   }
-  const nextQuizIndex = ongoingGame.currentQuizNumberOneIndexed + 1
+  const nextQuizIndex = ongoingGame.currentQuizNumberOneIndexed + 1;
 
-  const newQuiz = await getRandomQuiz(gameId, nextQuizIndex) // !!
+  const newQuiz = await getRandomQuiz(gameId, nextQuizIndex); // !!
   if (newQuiz === null) {
     return console.error(`[Error]: startQuiz1 but newQuiz is null`);
   }
@@ -382,7 +394,7 @@ const startNewQuiz = async (gameId: string, io: Server) => {
     ...ongoingGame,
     currentQuizNumberOneIndexed: nextQuizIndex,
     quizzes: ongoingGame.quizzes.concat(newQuiz),
-  }
+  };
   db.game.updateOngoingGame(newGame);
 
   emitter.emitQuizStarted(
@@ -393,9 +405,12 @@ const startNewQuiz = async (gameId: string, io: Server) => {
   );
 };
 
-const getRandomQuiz = async (gameId: string, quizNumber: number): Promise<Quiz | null> => {
+const getRandomQuiz = async (
+  gameId: string,
+  quizNumber: number
+): Promise<Quiz | null> => {
   const quizzes = await storageAPI.listAllQuizzes();
-  if (!quizzes) return null
+  if (!quizzes) return null;
   const motionId = shuffleArray(quizzes)[0];
   return {
     motionId: motionId.split(".json")[0].split("motion/")[1],
