@@ -36,7 +36,6 @@ export type OnGoingGame = {
   participants: Participant[];
   currentQuizNumberOneIndexed: number;
   quizzes: Quiz[];
-  // gameResult: GameResult[] | null;
   gameResult: GameResult[];
 };
 

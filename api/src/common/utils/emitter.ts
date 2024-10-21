@@ -19,7 +19,7 @@ export const emitter = {
   emitPongWithAck: (socket: Socket, message: string) => {
     emitToSocketAck(socket, { event: "PONG_WITH_ACK", message: message });
   },
-  emitWaitingRoomJoined: (socket: Socket, waitingGame: WaitingParticipantsGame, clientId: string) => {
+  emitWaitingGameJoined: (socket: Socket, waitingGame: WaitingParticipantsGame, clientId: string) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_JOINED", ...waitingGame, clientId });
   },
   emitWaitingRoomUpdated: (socketIDs: string[], waitingGame: WaitingParticipantsGame, io: Server) => {

@@ -31,7 +31,7 @@ export const gameHandler = (
     case "PING_WITH_ACK":
       return handlePingWithAck(socket, body.message ?? "");
     case "ENTER_WAITING_ROOM":
-      return handleEnterWaitingRoom(socket, body.name, io);
+      return handleEnterWaitingGame(socket, body.name, io);
     case "BUTTON_PRESSED":
       return handleButtonPressed({
         gameId: body.gameId,
@@ -57,7 +57,7 @@ const handlePing = (socket: Socket) => emitter.emitPong(socket);
 const handlePingWithAck = (socket: Socket, message: string) =>
   emitter.emitPongWithAck(socket, message);
 
-const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
+const handleEnterWaitingGame = (socket: Socket, name: string, io: Server) => {
   const waitingGames = db.game.getWaitingGames();
 
   if (waitingGames.length === 0) {
@@ -79,7 +79,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
       gameResult: null,
     };
     db.game.upsertWaitingGame(newWaitingGame);
-    emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
+    emitter.emitWaitingGameJoined(socket, newWaitingGame, clientId);
     console.log(
       `[waitingRoom] 一人目の待機者。gameID: ${gameID}, name: ${name}`
     );
@@ -93,7 +93,7 @@ const handleEnterWaitingRoom = (socket: Socket, name: string, io: Server) => {
       name: name,
     });
     db.game.upsertWaitingGame(newWaitingGame);
-    emitter.emitWaitingRoomJoined(socket, newWaitingGame, clientId);
+    emitter.emitWaitingGameJoined(socket, newWaitingGame, clientId);
     console.log(
       `[waitingRoom] ${newWaitingGame.participants.length}人目の待機者。gameID: ${newWaitingGame.gameId}, name: ${name}`
     );
