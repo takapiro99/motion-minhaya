@@ -1,5 +1,10 @@
 import type { Server, Socket } from "socket.io";
-import type { OnGoingGame, Quiz, WaitingParticipantsGame } from "../models/game";
+import type {
+  Game,
+  OnGoingGame,
+  Quiz,
+  WaitingParticipantsGame,
+} from "../models/game";
 import type { MotionMinhayaWSServerMessage } from "../models/messages";
 import { db } from "./db";
 
@@ -7,8 +12,13 @@ const emitToSocket = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
   console.log(`[emit: ${body.event}] ${socket.id} <== ${JSON.stringify(body)}`);
   socket.emit("game", body);
 };
-const emitToSocketAck = (socket: Socket, body: MotionMinhayaWSServerMessage) => {
-  console.log(`[emit(with ack): ${body.event}] ${socket.id} <== ${JSON.stringify(body)}`);
+const emitToSocketAck = (
+  socket: Socket,
+  body: MotionMinhayaWSServerMessage
+) => {
+  console.log(
+    `[emit(with ack): ${body.event}] ${socket.id} <== ${JSON.stringify(body)}`
+  );
   socket.emitWithAck("game", body);
 };
 
@@ -19,21 +29,40 @@ export const emitter = {
   emitPongWithAck: (socket: Socket, message: string) => {
     emitToSocketAck(socket, { event: "PONG_WITH_ACK", message: message });
   },
-  emitWaitingGameJoined: (socket: Socket, waitingGame: WaitingParticipantsGame, clientId: string) => {
-    emitToSocketAck(socket, { event: "WAITING_ROOM_JOINED", ...waitingGame, clientId });
+  emitWaitingGameJoined: (
+    socket: Socket,
+    waitingGame: WaitingParticipantsGame,
+    clientId: string
+  ) => {
+    emitToSocketAck(socket, {
+      event: "WAITING_ROOM_JOINED",
+      ...waitingGame,
+      clientId,
+    });
   },
-  emitWaitingRoomUpdated: (socketIDs: string[], waitingGame: WaitingParticipantsGame, io: Server) => {
+  emitWaitingRoomUpdated: (
+    socketIDs: string[],
+    waitingGame: WaitingParticipantsGame,
+    io: Server
+  ) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
-        emitToSocketAck(socket, { event: "WAITING_ROOM_UPDATED", ...waitingGame });
+        emitToSocketAck(socket, {
+          event: "WAITING_ROOM_UPDATED",
+          ...waitingGame,
+        });
       }
-    })
+    });
   },
   emitWaitingRoomUnjoinable: (socket: Socket) => {
     emitToSocketAck(socket, { event: "WAITING_ROOM_UNJOINABLE" });
   },
-  emitGameStarted: (socketIDs: string[], game: WaitingParticipantsGame, io: Server) => {
+  emitGameStarted: (
+    socketIDs: string[],
+    game: WaitingParticipantsGame,
+    io: Server
+  ) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
@@ -43,9 +72,14 @@ export const emitter = {
           participants: game.participants,
         });
       }
-    })
+    });
   },
-  emitQuizStarted: (socketIDs: string[], gameId: string, quiz: Quiz, io: Server) => {
+  emitQuizStarted: (
+    socketIDs: string[],
+    gameId: string,
+    quiz: Quiz,
+    io: Server
+  ) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
@@ -58,9 +92,15 @@ export const emitter = {
           answerFinishTimestamp: quiz?.answerFinishTimestamp,
         });
       }
-    })
+    });
   },
-  emitParticipantsAnswerStatusUpdated: (socketIDs: string[], gameId: string, quizNumber: number, guesses: OnGoingGame["quizzes"][number]["guesses"], io: Server) => {
+  emitParticipantsAnswerStatusUpdated: (
+    socketIDs: string[],
+    gameId: string,
+    quizNumber: number,
+    guesses: OnGoingGame["quizzes"][number]["guesses"],
+    io: Server
+  ) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
@@ -68,21 +108,19 @@ export const emitter = {
           event: "PARTICIPANTS_ANSWER_STATUS_UPDATED",
           gameId: gameId,
           quizNumber: quizNumber,
-          // participants: guesses.map((guess) => {
-          //   return {
-          //     clientId: guess.clientId,
-          //     name: guess.name,
-          //     status: guess.guess !== null ? "ANSWER_SUBMITTED" : guess.buttonPressedTimeMs ? "BUTTON_PRESSED" : "BUTTON_NOT_PRESSED",
-          //     buttonPressedTimeMs: guess.buttonPressedTimeMs,
-          //   }
-          // })
-          guesses: guesses, // 動作未確認
+          guesses: guesses,
         });
       }
-    })
+    });
   },
-  // 動作未確認
-  quizResult: (socketIDs: string[], gameId: string, guesses: OnGoingGame["quizzes"][number]["guesses"], gameResult: OnGoingGame["gameResult"], io: Server, answers: string[]) => {
+  quizResult: (
+    socketIDs: string[],
+    gameId: string,
+    guesses: OnGoingGame["quizzes"][number]["guesses"],
+    gameResult: OnGoingGame["gameResult"],
+    io: Server,
+    answers: string[]
+  ) => {
     const quizNum = db.game.getGame(gameId)?.currentQuizNumberOneIndexed;
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
@@ -96,10 +134,15 @@ export const emitter = {
           answers: answers,
         });
       }
-    })
+    });
   },
   // 動作未確認
-  gameResult: (socketIDs: string[], gameId: string, gameResult: OnGoingGame["gameResult"], io: Server) => {
+  gameResult: (
+    socketIDs: string[],
+    gameId: string,
+    gameResult: OnGoingGame["gameResult"],
+    io: Server
+  ) => {
     socketIDs.forEach((socketID) => {
       const socket = io.sockets.sockets.get(socketID);
       if (socket) {
@@ -109,6 +152,13 @@ export const emitter = {
           gameResult: gameResult,
         });
       }
-    })
-  }
+    });
+  },
+};
+
+export const getParticipantIDs = (game: Game): string[] => {
+  return (
+    game?.participants?.map((p) => p.connectionId).filter((p) => p !== null) ??
+    []
+  );
 };

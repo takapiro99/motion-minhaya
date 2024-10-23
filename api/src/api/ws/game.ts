@@ -1,5 +1,6 @@
 import { constants } from "@/common/constants";
 import {
+  Game,
   Guess,
   OnGoingGame,
   Participant,
@@ -9,7 +10,7 @@ import {
 } from "@/common/models/game";
 import type { MotionMinhayaWSClientMessage } from "@/common/models/messages";
 import { db } from "@/common/utils/db";
-import { emitter } from "@/common/utils/emitter";
+import { emitter, getParticipantIDs } from "@/common/utils/emitter";
 import { QuizInfo, storageAPI } from "@/common/utils/storage";
 import { io } from "@/index";
 import type { Server, Socket } from "socket.io";
@@ -33,11 +34,11 @@ export const gameHandler = (
     case "ENTER_WAITING_ROOM":
       return handleEnterWaitingGame(socket, body.name, io);
     case "BUTTON_PRESSED":
-      return handleButtonPressed({
+      return handlePressAnswerButton({
         gameId: body.gameId,
         quizNumber: body.quizNumber,
         clientId: body.clientId,
-        buttonPressedTimestamp: body.buttonPressedTimestamp,
+        timestamp: body.buttonPressedTimestamp,
       });
     case "GUESS_ANSWER":
       return handleGuessAnswer({
@@ -128,20 +129,19 @@ const handleEnterWaitingGame = (socket: Socket, name: string, io: Server) => {
   }
 };
 
-type handleButtonPressedProps = {
-  // socket: Socket,
+type HandlePressAnswerButtonProps = {
   gameId: string;
   quizNumber: number;
   clientId: string;
-  buttonPressedTimestamp: number;
+  timestamp: number;
 };
 
-const handleButtonPressed = ({
+const handlePressAnswerButton = ({
   gameId,
   quizNumber,
   clientId,
-  buttonPressedTimestamp,
-}: handleButtonPressedProps) => {
+  timestamp,
+}: HandlePressAnswerButtonProps) => {
   const ongoingGame = db.game.getGame(gameId);
   if (!ongoingGame || ongoingGame.status !== "ONGOING") {
     return console.error(`[Error] handleButtonPressedでongoingじゃないよ？`);
@@ -155,7 +155,7 @@ const handleButtonPressed = ({
   );
   if (!targetQuiz) {
     return console.error(
-      `[Error]: target quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${buttonPressedTimestamp}`
+      `[Error]: target quiz not found: ${gameId}, ${quizNumber}, ${clientId}, ${timestamp}`
     );
   }
   const targetGuess = targetQuiz.guesses.find(
@@ -166,7 +166,7 @@ const handleButtonPressed = ({
   );
   if (targetGuess) {
     return console.error(
-      `[Error]: button pressed but target guess of quiz has found!!: ${gameId}, ${quizNumber}, ${clientId}, ${buttonPressedTimestamp}`
+      `[Error]: button pressed but target guess of quiz has found!!: ${gameId}, ${quizNumber}, ${clientId}, ${timestamp}`
     );
   }
   const targetParticipant = ongoingGame.participants.find(
@@ -182,7 +182,7 @@ const handleButtonPressed = ({
       connectionId: targetParticipant.connectionId,
       clientId: clientId,
       name: targetParticipant.name,
-      buttonPressedTimeMs: buttonPressedTimestamp,
+      buttonPressedTimeMs: timestamp,
       guess: null,
       similarityPoint: -1, // 類似度点数
       quizPoint: -1, // この問題で得た点数
@@ -203,9 +203,7 @@ const handleButtonPressed = ({
   db.game.updateOngoingGame(newOngoingGame);
 
   emitter.emitParticipantsAnswerStatusUpdated(
-    newOngoingGame.participants
-      .map((p) => p.connectionId)
-      .filter((p) => p !== null),
+    getParticipantIDs(newOngoingGame),
     gameId,
     quizNumber,
     newGuesses,
