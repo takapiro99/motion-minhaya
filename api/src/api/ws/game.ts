@@ -42,7 +42,6 @@ export const gameHandler = (
       });
     case "GUESS_ANSWER":
       return handleGuessAnswer({
-        socket,
         gameId: body.gameId,
         quizNumber: body.quizNumber,
         clientId: body.clientId,
@@ -211,8 +210,7 @@ const handlePressAnswerButton = ({
   );
 };
 
-type handleGuessAnswerProps = {
-  socket: Socket;
+type HandleGuessAnswerProps = {
   clientId: string;
   gameId: string;
   quizNumber: number;
@@ -220,12 +218,11 @@ type handleGuessAnswerProps = {
 };
 
 const handleGuessAnswer = async ({
-  socket,
   clientId,
   gameId,
   quizNumber,
   guess,
-}: handleGuessAnswerProps) => {
+}: HandleGuessAnswerProps) => {
   const ongoingGame = db.game.getGame(gameId);
   if (!ongoingGame || ongoingGame.status !== "ONGOING") {
     return console.error(
@@ -263,13 +260,13 @@ const handleGuessAnswer = async ({
       guess: guess,
     },
   ];
-  // if finished?
   const everyoneAnswered =
     newGuesses.length === constants.PARTICIPANTS_PER_GAME &&
     newGuesses
       .filter((g) => g.connectionId !== null)
       .every((guess) => guess.guess !== null);
   let motion: QuizInfo | null = null;
+  // if finished, set points
   if (everyoneAnswered) {
     motion = await storageAPI.getQuizById(targetQuiz.motionId);
     if (!motion) {
@@ -278,15 +275,15 @@ const handleGuessAnswer = async ({
     newGuesses = copy(newGuesses).map((guess) => {
       if (!motion) return guess;
       const correct = motion.answers.includes(guess.guess ?? "___");
-      const pressedOrder =
-        newGuesses
-          .sort((a, b) => b.buttonPressedTimeMs - a.buttonPressedTimeMs)
-          .findIndex((g) => g.clientId === guess.clientId) + 1;
+      const answerSeikaiOrder = newGuesses
+        .sort((a, b) => b.buttonPressedTimeMs - a.buttonPressedTimeMs)
+        .filter((g) => motion?.answers.includes(g.guess ?? "___"))
+        .findIndex((g) => g.clientId === guess.clientId);
 
       return {
         ...guess,
         similarityPoint: correct ? 1 : 0,
-        quizPoint: correct ? Math.max((3 - pressedOrder) * 10, 10) : 0,
+        quizPoint: correct ? (4 - answerSeikaiOrder) * 10 : 0,
       };
     });
   }
