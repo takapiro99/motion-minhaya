@@ -113,7 +113,7 @@ export const QuizResult: React.FC<{
         </div>
         <div></div>
         {quiz.guesses
-          .sort((a, b) => a.quizPoint - b.quizPoint)
+          .sort((a, b) => b.quizPoint - a.quizPoint)
           .map((g) => (
             <div
               key={g.name}
