@@ -1,6 +1,5 @@
 import { env } from "@/common/utils/envConfig";
 import { app, logger } from "@/server";
-import cors from "cors";
 import { Server } from "socket.io";
 import { wsRoutes } from "./wsServer";
 
@@ -11,7 +10,7 @@ const server = app.listen(env.PORT, () => {
 
 export const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173", "https://motion-minhaya-sxmhgfgw6q-an.a.run.app", "https://alien-signal-quiz.web.app"],
+    origin: ["http://localhost:5173", "https://alien-signal-quiz.web.app"],
     methods: ["GET", "POST"],
     credentials: true,
   },
