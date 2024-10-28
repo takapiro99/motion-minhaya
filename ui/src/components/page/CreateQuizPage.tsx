@@ -39,9 +39,6 @@ export const CreateQuizPage: FC = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   // eslint-disable-next-line
   const [quizUploading, setQuizUploading] = useState<boolean>(false);
-  const [currentPose, setCurrentPose] = useState<
-    poseDetection.Pose["keypoints3D"] | null
-  >(null);
 
   const reset = () => {
     setRecording(false);
@@ -82,10 +79,7 @@ export const CreateQuizPage: FC = () => {
           flipHorizontal: false,
         });
         if (poses.length > 0) {
-          setCurrentPose(poses[0].keypoints3D);
           if (recording) setRecord((prev) => [...prev, poses[0]]);
-        } else {
-          setCurrentPose(null);
         }
         // renderResult
         if (
