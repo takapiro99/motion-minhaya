@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { SocketContext } from "../../SocketContext";
 import { GameResult } from "./GameResult";
 import useSound from "use-sound";
-import MainBGM from "../../../public/music/topPageAndStartGameResult.mp3?url";
-import ParticleSettings from "../../../public/particles.json?url";
+import MainBGM from "/music/topPageAndStartGameResult.mp3?url";
+import ParticleSettings from "/particles.json?url";
 import { TopPagePreview } from "../createQuiz/TopPagePreview";
 import { Canvas } from "@react-three/fiber";
 
@@ -34,23 +34,6 @@ export const GameFinished: FC = () => {
 
   return (
     <>
-      {/* <GameResult /> */}
-      {/* <div>ゲーム終了！！！</div>
-      {/* <ul>
-        <li>たろう: 100 点</li>
-        <li>じろう: 100 点</li>
-        <li>さぶろう: 100 点</li>
-        <li>しろう: 100 点</li>
-      </ul> */}
-      {/* <GameResult /> */}
-      {/* <Button
-        onClick={() => {
-          updateClientStatus("OUT_OF_GAME")
-          navigate("/")
-        }}
-      >
-        TopPage に戻る
-      </Button> */}
       <div
         style={{
           position: "relative",
@@ -123,7 +106,6 @@ export const GameFinished: FC = () => {
         </div>
         <div
           style={{
-            // border: "2px solid green",
             position: "absolute",
             top: "30dvh",
             left: 0,

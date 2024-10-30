@@ -47,7 +47,6 @@ export const CreateQuizPage: FC = () => {
     setAnswers([]);
     setQuizUploading(false);
   };
-  // console.log(quizUploading, currentPose);
 
   const startRecording = () => {
     setRecording(true);
@@ -145,12 +144,6 @@ export const CreateQuizPage: FC = () => {
       }
     }
   }, []);
-
-  // const saveLocalStorage = () => {
-  //   if (record.length === 0) return;
-  //   const key = `quiz_${new Date().getTime()}`;
-  //   localStorage.setItem(key, JSON.stringify(record));
-  // };
 
   const handleSaveQuiz = async () => {
     if (record.length === 0 || answers.length === 0) return;
@@ -252,14 +245,6 @@ export const CreateQuizPage: FC = () => {
         >
           正解ともに保存
         </Button>
-        {/* <Button
-          primary
-          type="button"
-          onClick={saveLocalStorage}
-          disabled={record.length === 0 || recording}
-        >
-          LocalStorageに保存
-        </Button> */}
         <TextArea
           disabled={record.length === 0 || recording}
           placeholder="正答を入力（半角カンマ区切りで）"

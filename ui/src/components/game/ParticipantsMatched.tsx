@@ -53,7 +53,6 @@ export const ParticipantsMatched: FC = () => {
             height: "100%",
             display: "flex",
             flexDirection: "column",
-            // margin: "0 auto",
             justifyContent: "center",
             alignItems: "center",
             zIndex: 10,

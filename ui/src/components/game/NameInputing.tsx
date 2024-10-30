@@ -53,7 +53,6 @@ export const NameInputing: FC = () => {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          // margin: "0 auto",
           justifyContent: "space-around",
           alignItems: "center",
           zIndex: 10,
@@ -104,28 +103,3 @@ export const NameInputing: FC = () => {
     </div>
   );
 };
-
-// useLayoutEffect(() => {
-//   /* particlesJS.load(@dom-id, @path-json, @callback (optional)); */
-//   // @ts-ignore
-//   window.particlesJS.load("particles-js", ParticleSettings, function () {
-//     console.log("callback - particles.js config loaded");
-//   });
-// }, []);
-
-// if (clientStatus === "OUT_OF_GAME") {
-//   alert("宇宙の力によって不正なステータスとなりました。トップに戻ります！");
-//   return <Navigate replace to="/" />;
-// }
-
-// return (
-//   <div
-//     style={{
-//       // position: "relative",
-//       height: "100%",
-//       width: "100%",
-//       // maxWidth: "680px",
-//       background: "#111",
-//     }}
-//     id="particles-js"
-//   >

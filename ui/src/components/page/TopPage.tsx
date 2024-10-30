@@ -118,7 +118,6 @@ export const TopPage: FC = () => {
       </div>
       <div
         style={{
-          // border: "2px solid green",
           position: "absolute",
           top: "30dvh",
           left: 0,

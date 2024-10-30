@@ -108,11 +108,9 @@ export const GameAnswering: React.FC<{
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          // margin: "0 auto",
           justifyContent: "center",
           alignItems: "center",
           zIndex: 10,
-          // gap: "30px",
         }}
       >
         <div style={{ height: "80px", width: "100%" }}>
