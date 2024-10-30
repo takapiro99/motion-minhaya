@@ -274,10 +274,11 @@ const handleGuessAnswer = async ({
     }
     newGuesses = copy(newGuesses).map((guess) => {
       if (!motion) return guess;
-      const correct = motion.answers.includes(guess.guess ?? "___");
+      const answers = motion.answers.map((s) => s.trim());
+      const correct = answers.includes(guess.guess ?? "___");
       const answerSeikaiOrder = newGuesses
         .sort((a, b) => b.buttonPressedTimeMs - a.buttonPressedTimeMs)
-        .filter((g) => motion?.answers.includes(g.guess ?? "___"))
+        .filter((g) => answers.includes(g.guess ?? "___"))
         .findIndex((g) => g.clientId === guess.clientId);
 
       return {
