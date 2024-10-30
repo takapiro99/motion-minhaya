@@ -82,11 +82,9 @@ export const QuizResult: React.FC<{
           height: "90dvh",
           display: "flex",
           flexDirection: "column",
-          // margin: "0 auto",
           justifyContent: "center",
           alignItems: "center",
           zIndex: 10,
-          // gap: "30px",
         }}
       >
         <div style={{ color: "snow", fontSize: "2rem", marginBottom: "30px" }}>
@@ -136,7 +134,6 @@ export const QuizResult: React.FC<{
                 style={{
                   color: "red",
                   fontSize: "2rem",
-                  // visibility: g.quizPoint > 0 ? "visible" : "hidden",
                 }}
               >
                 +{g.quizPoint}{" "}

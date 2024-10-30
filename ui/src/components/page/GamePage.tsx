@@ -60,12 +60,9 @@ export const GamePage: FC = () => {
       {clientStatus === "WAITING_ROOM_UNJOINABLE" && <WaitingRoomUnjoinable />}
 
       {clientStatus === "PARTICIPANTS_WAITING" && <ParticipantsWaiting />}
-      {/* {clientStatus === "PARTICIPANTS_MATCHED" && <ParticipantsMatched />} */}
-      {/* {clientStatus === "GAME_STARTED" && <GameStarted />} */}
       {clientStatus === "GAME_ONGOING" &&
         (() => {
           stopWaitingRoomAndGameResultBGM();
-          // playOnGoingGameBGM();
           return <GameOngoing />;
         })()}
       {clientStatus === "GAME_FINISIED" &&
