@@ -54,7 +54,6 @@ export const CreateQuizPage: FC = () => {
 
     const siID = setInterval(() => {
       setRemainingSeconds((prevSeconds) => {
-        // console.log(prevSeconds);
         if (prevSeconds === 1) {
           setRecording(false);
           clearInterval(siID);
