@@ -8,6 +8,10 @@
     ],
     "rewrites": [
       {
+        "source": "/create-quiz",
+        "destination": "/index2.html"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
