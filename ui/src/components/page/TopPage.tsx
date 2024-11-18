@@ -109,8 +109,8 @@ export const TopPage: FC = () => {
             }}
             onClick={() => {
               stop()
-              navigate("/create-quiz")}
-            }
+              window.location.href = "/create-quiz";
+            }}
           >
             クイズをつくる
           </Button>
