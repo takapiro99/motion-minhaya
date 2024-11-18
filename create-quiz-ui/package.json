@@ -25,7 +25,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && mv build/index.html build/index2.html",
+    "build:full": "npm run build && npm run copy-files",
+    "copy-files": "cp -r build/* ../ui/dist",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
