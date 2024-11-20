@@ -178,9 +178,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           } as Quiz;
           setGame({
             ...game,
-            status: "ONGOING", // 不要な更新？
-            gameId: message.gameId as string, // 不要な更新？
-            currentQuizNumberOneIndexed: message.quizNumber as number,
+            currentQuizNumberOneIndexed: message.quizNumber,
             quizzes: game.quizzes ? [...game.quizzes, addedQuiz] : [addedQuiz],
           });
           if (clientStatus !== "GAME_ONGOING") setClientStatus("GAME_ONGOING");
@@ -191,7 +189,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           if (game.status !== "ONGOING") {
             return console.error(`[Error] game.status is not ONGOING`);
           }
-          const currentQuizNumber = message.quizNumber as number;
+          const currentQuizNumber = message.quizNumber;
           const currentQuiz = game.quizzes.find(
             (quiz) => quiz.quizNumber === currentQuizNumber,
           );
@@ -209,8 +207,6 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           console.log("addedQuiz", addedQuiz);
           setGame({
             ...game,
-            status: "ONGOING", // 不要な更新？
-            gameId: message.gameId as string, // 不要な更新？
             quizzes: [...notCurrentQuiz, addedQuiz],
           });
           break;
@@ -237,8 +233,6 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           };
           setGame({
             ...game,
-            status: "ONGOING", // 不要な更新？
-            gameId: message.gameId, // 不要な更新？
             quizzes: [...notCurrentQuiz, addedQuiz],
             gameResult: message.gameResult,
           });
@@ -248,13 +242,7 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
           if (game.status !== "ONGOING") {
             return console.error(`[Error] game.status is not ONGOING`);
           }
-          console.log("GAME_RESULT recieved!");
-          setGame({
-            ...game,
-            status: "ONGOING", // 不要な更新？
-            gameId: message.gameId, // 不要な更新？
-            gameResult: message.gameResult,
-          });
+          setGame({ ...game, gameResult: message.gameResult });
           setClientStatus("GAME_FINISIED");
           break;
         }
@@ -267,21 +255,6 @@ export const SocketContextProvider: FC<{ children: ReactNode }> = ({
       socket.off("game");
     };
   }, [clientStatus, game, user]);
-
-  // clientStatus の状態確認用
-  useEffect(() => {
-    console.log("clientStatus:", clientStatus);
-  }, [clientStatus]);
-
-  // game の状態確認用
-  useEffect(() => {
-    console.log("game:", game);
-  }, [game]);
-
-  // user の状態確認用
-  useEffect(() => {
-    console.log("user:", user);
-  }, [user]);
 
   return (
     <SocketContext.Provider

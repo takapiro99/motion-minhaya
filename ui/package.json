@@ -7,9 +7,10 @@
     "start": "vite",
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:full": "tsc -b && vite build && cd ../create-quiz-ui && npm run build:full && cd ../ui",
     "lint": "eslint .",
-    "preview": "npm run build && vite preview",
-    "deploy": "npm run build && firebase deploy"
+    "preview": "npm run build:full && vite preview",
+    "deploy": "npm run build:full && firebase deploy"
   },
   "dependencies": {
     "@mediapipe/pose": "^0.5.1675469404",

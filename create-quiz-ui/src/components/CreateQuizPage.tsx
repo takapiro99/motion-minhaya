@@ -1,13 +1,22 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { ToTopPageButton } from "../utils/ToTopPageButton";
 import "@mediapipe/pose";
 import "@tensorflow/tfjs-core";
 import "@tensorflow/tfjs-backend-webgl";
 import * as poseDetection from "@tensorflow-models/pose-detection";
 import Webcam from "react-webcam";
 import { RendererCanvas2d } from "../utils/renderCanvas";
-import { Button, Message, MessageHeader, TextArea } from "semantic-ui-react";
-import { serverOrigin } from "../../SocketContext";
+import {
+  Button,
+  Form,
+  Message,
+  MessageHeader,
+  TextArea,
+} from "semantic-ui-react";
+
+export const serverOrigin =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:8080"
+    : "https://motion-minhaya-sxmhgfgw6q-an.a.run.app";
 
 type PoseDetector = poseDetection.PoseDetector;
 const supportedModels = poseDetection.SupportedModels;
@@ -184,19 +193,6 @@ export const CreateQuizPage: FC = () => {
 
   return (
     <div style={{ height: "100%", width: "100%", position: "relative" }}>
-      <canvas
-        ref={canvasRef}
-        style={{
-          width: "auto",
-          height: "auto",
-          position: "absolute",
-          top: "150px",
-          left: "50%",
-          transform: "translate(-50%, 0)",
-        }}
-        width="640"
-        height="360"
-      ></canvas>
       <Webcam
         ref={webcamRef}
         mirrored
@@ -210,8 +206,12 @@ export const CreateQuizPage: FC = () => {
           transform: "scaleX(-1)",
         }}
       />
-      <ToTopPageButton />
       <div>
+        <div style={{ margin: "30px 0" }}>
+          <Button type="button" onClick={() => (window.location.href = "/")}>
+            トップに戻る
+          </Button>
+        </div>
         <Button
           primary
           type="button"
@@ -222,34 +222,30 @@ export const CreateQuizPage: FC = () => {
             ? `録画中（${remainingSeconds}秒）`
             : `録画開始(${RECORD_SECONDS}秒)`}
         </Button>
-        <Button
-          primary
-          type="button"
-          onClick={() => alert("TODO")}
-          disabled={record.length === 0 || recording}
-        >
-          プレビュー(TODO)
-        </Button>
-        <Button
-          primary
-          type="button"
-          onClick={handleSaveQuiz}
-          disabled={
-            record.length === 0 ||
-            recording ||
-            quizUploading ||
-            answers.length === 0
-          }
-          loading={quizUploading}
-        >
-          正解ともに保存
-        </Button>
-        <TextArea
-          disabled={record.length === 0 || recording}
-          placeholder="正答を入力（半角カンマ区切りで）"
-          value={answers.join(",")}
-          onChange={(e) => setAnswers(e.target.value.split(","))}
-        />
+        <div>
+          <Form>
+            <TextArea
+              disabled={record.length === 0 || recording}
+              placeholder="正答を入力（半角カンマ区切りで）"
+              value={answers.join(",")}
+              onChange={(e) => setAnswers(e.target.value.split(","))}
+            />
+            <Button
+              primary
+              type="button"
+              onClick={handleSaveQuiz}
+              disabled={
+                record.length === 0 ||
+                recording ||
+                quizUploading ||
+                answers.length === 0
+              }
+              loading={quizUploading}
+            >
+              正解ともに保存
+            </Button>
+          </Form>
+        </div>
         <Button
           secondary
           type="button"
@@ -269,6 +265,22 @@ export const CreateQuizPage: FC = () => {
         >
           モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
         </Button>
+      </div>
+      <div
+        style={{ display: "flex", justifyContent: "center", marginTop: "30px" }}
+      >
+        <canvas
+          ref={canvasRef}
+          style={{
+            width: "100vw",
+            maxWidth: "640px",
+            height: "auto",
+            textAlign: "center",
+            // margin: "0 auto",
+          }}
+          width="640"
+          height="360"
+        ></canvas>
       </div>
       <div
         style={{
@@ -291,50 +303,3 @@ export const CreateQuizPage: FC = () => {
     </div>
   );
 };
-
-// Bone name: _rootJoint
-// root_01
-// spine_01_02
-// pelvis_03
-// thighL_04
-// shinL_05
-// footL_06
-// toeL_07
-// thighR_08
-// shinR_09
-// footR_010
-// toeR_011
-// spine_02_012
-// spine_03_013
-// head_014
-// shoulderL_015
-// upper_armL_016
-// forearmL_017
-// handL_018
-// fingersL_019
-// thumb_01L_020
-// thumb_02L_021
-// shoulderR_022
-// upper_armR_023
-// forearmR_00
-// handR_024
-// fingersR_025
-// thumb_01R_026
-// thumb_02R_027
-// TAR_kneeL_028
-// IK_handL_029
-// IK_footL_030
-// TAR_elbowL_031
-// TAR_kneeR_032
-// IK_handR_033
-// IK_footR_034
-// TAR_elbowR_035
-
-// const logEstimation = (
-//   pose: poseDetection.Pose["keypoints3D"],
-//   num: number,
-//   xyz: "x" | "y" | "z",
-// ) => {
-//   if (!pose) return;
-//   console.log(`${pose[num].name}: ${xyz}: ${pose[num][xyz]}`);
-// };
