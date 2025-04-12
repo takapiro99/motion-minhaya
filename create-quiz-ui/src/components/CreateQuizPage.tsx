@@ -46,7 +46,7 @@ export const CreateQuizPage: FC = () => {
   const [record, setRecord] = useState<poseDetection.Pose[]>([]);
   const [mode, setMode] = useState<CreateQuizMode>("WITHCAMERA");
   const [answers, setAnswers] = useState<string[]>([]);
-  // eslint-disable-next-line
+
   const [quizUploading, setQuizUploading] = useState<boolean>(false);
 
   const reset = () => {
@@ -192,28 +192,46 @@ export const CreateQuizPage: FC = () => {
   };
 
   return (
-    <div style={{ height: "100%", width: "100%", position: "relative" }}>
-      <Webcam
-        ref={webcamRef}
-        mirrored
-        width={1280}
-        height={720}
-        style={{
-          width: "auto",
-          height: "auto",
-          visibility: "hidden",
-          position: "absolute",
-          transform: "scaleX(-1)",
-        }}
-      />
-      <div>
-        <div style={{ margin: "30px 0" }}>
-          <Button type="button" onClick={() => (window.location.href = "/")}>
-            トップに戻る
-          </Button>
-        </div>
+    <>
+      <div style={{ position: "relative" }}>
+        <Webcam
+          ref={webcamRef}
+          mirrored
+          width={1280}
+          height={720}
+          style={{
+            width: "auto",
+            height: "auto",
+            visibility: "hidden",
+            position: "absolute",
+          }}
+        />
+      </div>
+      <div style={{ margin: "10px 0px" }}>
+        <Button type="button" onClick={() => (window.location.href = "/")}>
+          トップに戻る
+        </Button>
+      </div>
+      <Form>
+        <TextArea
+          disabled={record.length === 0 || recording}
+          placeholder="正答を入力（半角カンマ区切りで）"
+          value={answers.join(",")}
+          onChange={(e) => setAnswers(e.target.value.split(","))}
+        />
+      </Form>
+      <div style={{marginTop: "10px"}}>
         <Button
-          primary
+          secondary
+          type="button"
+          onClick={() => {
+            setMode(mode === "WITHCAMERA" ? "GALAXY" : "WITHCAMERA");
+          }}
+        >
+          モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
+        </Button>
+        <Button
+          color="red"
           type="button"
           onClick={startRecording}
           disabled={recording || record.length > 0}
@@ -222,30 +240,6 @@ export const CreateQuizPage: FC = () => {
             ? `録画中（${remainingSeconds}秒）`
             : `録画開始(${RECORD_SECONDS}秒)`}
         </Button>
-        <div>
-          <Form>
-            <TextArea
-              disabled={record.length === 0 || recording}
-              placeholder="正答を入力（半角カンマ区切りで）"
-              value={answers.join(",")}
-              onChange={(e) => setAnswers(e.target.value.split(","))}
-            />
-            <Button
-              primary
-              type="button"
-              onClick={handleSaveQuiz}
-              disabled={
-                record.length === 0 ||
-                recording ||
-                quizUploading ||
-                answers.length === 0
-              }
-              loading={quizUploading}
-            >
-              正解ともに保存
-            </Button>
-          </Form>
-        </div>
         <Button
           secondary
           type="button"
@@ -257,13 +251,18 @@ export const CreateQuizPage: FC = () => {
           リセット
         </Button>
         <Button
-          secondary
+          primary
           type="button"
-          onClick={() => {
-            setMode(mode === "WITHCAMERA" ? "GALAXY" : "WITHCAMERA");
-          }}
+          onClick={handleSaveQuiz}
+          disabled={
+            record.length === 0 ||
+            recording ||
+            quizUploading ||
+            answers.length === 0
+          }
+          loading={quizUploading}
         >
-          モード：{mode === "GALAXY" ? "Galaxy" : "カメラ付き"}
+          正解ともに保存
         </Button>
       </div>
       <div
@@ -276,7 +275,6 @@ export const CreateQuizPage: FC = () => {
             maxWidth: "640px",
             height: "auto",
             textAlign: "center",
-            // margin: "0 auto",
           }}
           width="640"
           height="360"
@@ -297,9 +295,7 @@ export const CreateQuizPage: FC = () => {
             </MessageHeader>
           </Message>
         )}
-        {/* 一旦非表示にします。。。 */}
-        {/* <PreviewContainer currentPose={currentPose} /> */}
       </div>
-    </div>
+    </>
   );
 };
